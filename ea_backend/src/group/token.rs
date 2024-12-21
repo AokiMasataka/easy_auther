@@ -35,7 +35,5 @@ pub fn create_jwt(
 
 
 pub fn create_private_key() -> RS384KeyPair {
-    let private_key = RS384KeyPair::generate(2048)
-        .unwrap();
-    return private_key;
+    RS384KeyPair::generate(2048).unwrap()
 }

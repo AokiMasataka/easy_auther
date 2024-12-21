@@ -1,6 +1,29 @@
 import { ROOT } from "./const";
 import { GroupInfo, UserInfo } from "./types";
 
+//TODO https://zenn.dev/junki555/articles/4ab67fc78ce64c
+
+export namespace LoginApi {
+    export async function login(
+        name: string,
+        pass: string
+    ): Promise<{
+        id: string,
+        token: string,
+        refresh_tokrn: string
+    }> {
+        const response = await fetch(
+            `${ROOT}/login`,
+            {
+                method: "POST",
+                headers: {"content-type": "application/json"},
+                body: JSON.stringify({name: name, pass: pass})
+            }
+        );
+        return await response.json();
+    }
+}
+
 export namespace groupApi {
     export async function createGroup(
         name: string,

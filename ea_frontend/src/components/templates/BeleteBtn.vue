@@ -20,7 +20,6 @@
 import { ref } from 'vue';
 import DeleteForm from '../common/DeleteForm.vue';
 
-
 const props = defineProps<{
     title: string,
     name: string,

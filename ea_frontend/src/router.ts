@@ -1,10 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Group from './components/pages/Group.vue'
-import Groups from './components/pages/Groups.vue';
+import CreateGroup from './components/pages/CreateGroup.vue';
+import GroupDetail from './components/pages/Group/GroupDetail.vue';
+import GroupUsers from './components/pages/Group/GroupUsers.vue';
+import Login from './components/pages/Login.vue';
 
 const routes = [
-    { path: '/', name: 'Groups', component: Groups },
-    { path: '/:groupId', name: 'Group', component: Group }
+    { path: '/', redirect: '/login'},
+    { path: '/login', name: 'Login', component: Login},
+    { path: '/create', name: 'Create', component: CreateGroup},
+    { path: '/:groupId/detail', name: 'GroupDetail', component: GroupDetail },
+    { path: '/:groupId/users', name: 'GroupUsers', component: GroupUsers }
 ]
 
 const router = createRouter({

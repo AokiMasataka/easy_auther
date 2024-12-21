@@ -77,7 +77,8 @@ pub async fn login_group(
     pool: web::Data<Pgsql>,
     private_key: web::Data<RS384KeyPair>,
     req: web::Json<LoginRequest>,
-) -> HttpResponse{
+) -> HttpResponse {
+    println!("name: {}", req.name);
     let result = group::login(&pool, &req.name, &req.pass).await;
     
     let schema = match result {
@@ -101,9 +102,9 @@ pub async fn login_group(
         &schema.name,
         true
     );
-    return HttpResponse::Ok().json(
+    HttpResponse::Ok().json(
         LoginResponse{id: schema.id, token: jwt, refresh: refresh_jwt}
-    );
+    )
 }
 
 

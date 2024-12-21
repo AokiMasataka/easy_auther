@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { ItemInfo } from '@/scripts/types';
-import DeleteBtn from './DeleteBtn.vue';
+import { ItemInfo } from '../../scripts/types';
+import DeleteBtn from './BeleteBtn.vue';
 
 const headers = [
     {title: "ID", key: "id"},

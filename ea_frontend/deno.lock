@@ -2,10 +2,12 @@
   "version": "4",
   "specifiers": {
     "npm:@mdi/font@*": "7.4.47",
+    "npm:@types/node@*": "22.5.4",
     "npm:@vitejs/plugin-vue@^4.5.2": "4.6.2_vite@5.4.11_vue@3.5.12",
     "npm:autoprefixer@^10.4.20": "10.4.20_postcss@8.4.49",
     "npm:postcss@^8.4.49": "8.4.49",
     "npm:tailwindcss@^3.4.16": "3.4.16_postcss@8.4.49",
+    "npm:typescript-cookie@1.0.6": "1.0.6",
     "npm:vite-plugin-vuetify@*": "2.0.4_vite@5.4.11_vue@3.5.12_vuetify@3.7.5__vue@3.5.12_vuetify@3.7.5__vue@3.5.12__vite-plugin-vuetify@2.0.4",
     "npm:vite@*": "5.4.11",
     "npm:vite@^5.0.10": "5.4.11",
@@ -219,6 +221,12 @@
     },
     "@types/estree@1.0.6": {
       "integrity": "sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw=="
+    },
+    "@types/node@22.5.4": {
+      "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
+      "dependencies": [
+        "undici-types"
+      ]
     },
     "@vitejs/plugin-vue@4.6.2_vite@5.4.11_vue@3.5.12": {
       "integrity": "sha512-kqf7SGFoG+80aZG6Pf+gsZIVvGSCKE98JbiWqcCV9cThtg91Jav0yvYFC9Zb+jKetNGF6ZKeoaxgZfND21fWKw==",
@@ -892,6 +900,12 @@
     "ts-interface-checker@0.1.13": {
       "integrity": "sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA=="
     },
+    "typescript-cookie@1.0.6": {
+      "integrity": "sha512-s+BZr7/9BUG6Kg7jGGcOY/4XJcP+iZRFdF3q4FPTfRSP83ivLWF94OcH8PrzGmnS8Ab9qP7ENu/ikLwNFsIafA=="
+    },
+    "undici-types@6.19.8": {
+      "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
+    },
     "upath@2.0.1": {
       "integrity": "sha512-1uEe95xksV1O0CYKXo8vQvN1JEbtJp7lb7C5U9HMsIp6IVwntkH/oNUzyVNQSd4S1sYk2FpSSW44FqMc8qee5w=="
     },
@@ -988,6 +1002,10 @@
     "yaml@2.6.1": {
       "integrity": "sha512-7r0XPzioN/Q9kXBro/XPnA6kznR73DHq+GXh5ON7ZozRO6aMjbmiBuKste2wslTFkC5d1dw0GooOCepZXJ2SAg=="
     }
+  },
+  "remote": {
+    "https://esm.sh/typescript-cookie@1.0.6": "1a02f591fa3f20bc58b8f67419873dd54ba2164bb8877d89e0cfdac1ef17d633",
+    "https://esm.sh/v135/typescript-cookie@1.0.6/denonext/typescript-cookie.mjs": "904d2aa1aa5f255fa899a229ed91ce23bfa4777646eca349310b9be09d783a97"
   },
   "workspace": {
     "dependencies": [
