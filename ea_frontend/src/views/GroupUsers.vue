@@ -1,17 +1,8 @@
 <template>
-    <div class="flex justify-center">
-        <div class="w-2/3 flex items-center justify-between mt-16">
-            <h1 class="text-2xl">Users</h1>
-            <PemBtn
-                :group-id="groupId"
-            />
-
-            <CreateBtn
-                title="Create New User"
-                v-model="createUserProps"
-                @on-create="createUser"
-            />
-        </div>
+    <div class="mt-3 flex justify-center">
+        <CreateBtn
+            @click="createUser"
+        />
     </div>
 
     <div class="mt-3 flex justify-center">
@@ -28,28 +19,25 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { userApi } from '../../scripts/api';
-import { AuthInfo, UserInfo } from '../../scripts/types';
-import List from '../templates/List.vue';
+import { userApi } from '../scripts/api';
+import { UserInfo } from '../scripts/types';
+import CreateBtn from '../components/templates/CreateBtn.vue';
+import List from '../components/templates/List.vue';
 
 const route = useRoute();
 const groupId = route.params.groupId as string;
 
 const users = ref<UserInfo[]>([{name: "", id: ""}]);
-const createUserProps = ref<AuthInfo>({name: "", pass: ""});
 
 async function fetchUsers() {
     users.value = await userApi.getUsers(groupId);
+    console.log("fetch user");
 };
 
-async function createUser() {
-    await userApi.createUser(
-        groupId,
-        createUserProps.value.name,
-        createUserProps.value.pass
-    );
+async function createUser(name: string, pass: string) {
+    userApi.createUser(groupId, name, pass);
     fetchUsers();
-};
+}
 
 async function deleteUser(userId: string) {
     await userApi.deleteUser(groupId, userId);
@@ -60,5 +48,5 @@ function uri(userId: string): string  {
     return `http://localhost:3000/${groupId}/${userId}`;
 };
 
-onMounted(fetchUsers);
+onMounted(fetchUsers());
 </script>

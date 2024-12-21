@@ -29,9 +29,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { LoginApi } from '../../scripts/api';
-import { setRefreshToken, setToken } from '../../scripts/cookie';
-import { AuthInfo } from '../../scripts/types';
+import { LoginApi } from '../scripts/api';
+import { setRefreshToken, setToken } from '../scripts/cookie';
+import { AuthInfo } from '../scripts/types';
 
 const authData = ref<AuthInfo>({name: "", pass: ""});
 
