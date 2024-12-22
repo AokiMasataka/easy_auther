@@ -4,6 +4,7 @@ use actix_web::{web, http, App, HttpServer};
 
 mod model;
 mod group;
+mod middleweres;
 
 
 #[actix_web::main]

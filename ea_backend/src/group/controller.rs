@@ -41,7 +41,7 @@ pub async fn create_group(
     pool: web::Data<Pgsql>,
     req: web::Json<CreateGroupRequest>
 ) -> HttpResponse {
-    println!("crteae group: {}", &req.name);
+    println!("[group create] name: {}", &req.name);
     let new_group = group::Group::new(req.name.clone(), req.pass.clone());
     
     match group::create_group(&pool, &new_group).await {
@@ -60,7 +60,7 @@ pub async fn delete_group(
     group_id: web::Path<uuid::Uuid>
 ) -> HttpResponse {
     let group_id = group_id.into_inner();
-    println!("delete group: {}", group_id);
+    println!("[group.delete] id: {}", group_id);
     
     match group::delete_group(&pool, &group_id).await {
         Ok(_) => HttpResponse::NoContent().body(""),
@@ -78,7 +78,7 @@ pub async fn login_group(
     private_key: web::Data<RS384KeyPair>,
     req: web::Json<LoginRequest>,
 ) -> HttpResponse {
-    println!("name: {}", req.name);
+    println!("[group login] name: {}", req.name);
     let result = group::login(&pool, &req.name, &req.pass).await;
     
     let schema = match result {
