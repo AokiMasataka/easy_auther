@@ -1,10 +1,11 @@
-use actix_web::{HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, web};
 use serde::{Serialize, Deserialize};
-use jwt_simple::prelude::{RS384KeyPair, RSAPublicKeyLike};
+use jwt_simple::prelude::*;
 use sqlx::types::uuid;
 
-use create::user::user;
-use create::model::config::Pgsql;
+use crate::user::user;
+use crate::group::token::GroupClaims;
+use crate::model::config::Pgsql;
 
 
 #[derive(Deserialize)]
@@ -28,20 +29,18 @@ pub async fn create_user(
     println!("[user create] name: {}", &payload.name);
     let claims = match authorization(&req, &private_key) {
         Ok(claims) => claims,
-        Err(e) => {
-            HttpResponse::Unauthorized().body("")
-        }
-    }
+        Err(e) => return HttpResponse::Unauthorized().body(e.to_string()),
+    };
 
     let new_user = user::User::new(
-        group_id,
+        claims.custom.id,
         payload.name.clone(),
         payload.pass.clone()
     );
 
     match user::create_user(&pool, &new_user).await {
-        Ok(_) => HttpRequest::Created()
-            .json(CreateGroupResponse{id: new_user.id}),
+        Ok(_) => HttpResponse::Created()
+            .json(CreateUserResponse{id: new_user.id}),
         Err(e) => {
             println!("[user create] Error: {}", e);
             HttpResponse::InternalServerError().body("")
@@ -53,9 +52,9 @@ pub async fn create_user(
 fn authorization(
     req: &HttpRequest,
     private_key: &RS384KeyPair
-) -> Result<GroupClaims, jwt_simple::error::Error> {
+) -> Result<JWTClaims<GroupClaims>, jwt_simple::Error> {
     let token = req.headers().get("Authorization").unwrap();
     let token = token.to_str().unwrap();
 
-    let claims = private_key.verify_token::<GroupClaims>(token)
+    private_key.public_key().verify_token::<GroupClaims>(token, None)
 }

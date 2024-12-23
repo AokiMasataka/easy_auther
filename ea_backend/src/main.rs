@@ -4,6 +4,7 @@ use actix_web::{web, http, App, HttpServer};
 
 mod model;
 mod group;
+mod user;
 mod middleweres;
 
 
@@ -43,7 +44,11 @@ async fn main() -> std::io::Result<()> {
             .route("/login", web::post().to(group::controller::login_group))
             .route("/refresh", web::post().to(group::controller::refresh_token))
             .route("/group", web::post().to(group::controller::create_group))
-            .route("/{group}", web::delete().to(group::controller::delete_group))
+            .route("/{group_id}", web::delete().to(group::controller::delete_group))
+            .service(
+                web::scope("/{group_id}")
+                    .route("/user", web::post().to(user::controller::create_user))
+            )
     })
     .bind(("127.0.0.1", port))?
     .run()

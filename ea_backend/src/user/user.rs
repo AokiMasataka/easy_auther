@@ -5,7 +5,7 @@ use crate::model::config::Pgsql;
 
 #[derive(FromRow, Serialize, Deserialize)]
 pub struct User {
-    id: uuid::Uuid,
+    pub id: uuid::Uuid,
     group_id: uuid::Uuid,
     name: String,
     pass: String
@@ -54,7 +54,7 @@ pub async fn get_user(
             id = $1
     "#;
 
-    sqlx::query_as<_, User>(query)
+    sqlx::query_as::<_, User>(query)
         .bind(user_id)
         .fetch_one(pool)
         .await
@@ -92,6 +92,7 @@ pub async fn delete_user(
 
     sqlx::query::<Postgres>(query)
         .bind(user_id)
+        .execute(pool)
         .await
 }
 
@@ -100,7 +101,7 @@ pub async fn login(
     pool: &Pgsql,
     group_id: &uuid::Uuid,
     name: &str,
-    psss: &str
+    pass: &str
 ) -> Result<User, sqlx::Error> {
     let query = r#"
         SELECT
@@ -108,10 +109,11 @@ pub async fn login(
         FROM
             users
         WHERE
-            name = $1 AND pass = $2
+            group_id = $1 AND name = $2 AND pass = $3
     "#;
 
     sqlx::query_as::<_, User>(query)
+        .bind(group_id)
         .bind(name)
         .bind(pass)
         .fetch_one(pool)
