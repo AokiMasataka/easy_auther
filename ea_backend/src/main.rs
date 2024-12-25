@@ -47,7 +47,10 @@ async fn main() -> std::io::Result<()> {
             .route("/{group_id}", web::delete().to(group::controller::delete_group))
             .service(
                 web::scope("/{group_id}")
+                    .route("/users", web::get().to(user::controller::get_users))
                     .route("/user", web::post().to(user::controller::create_user))
+                    .route("/{user_id}", web::delete().to(user::controller::delete_user))
+                    .route("/login", web::post().to(user::controller::login))
             )
     })
     .bind(("127.0.0.1", port))?

@@ -6,10 +6,24 @@ use crate::model::config::Pgsql;
 #[derive(FromRow, Serialize, Deserialize)]
 pub struct User {
     pub id: uuid::Uuid,
-    group_id: uuid::Uuid,
-    name: String,
-    pass: String
+    pub group_id: uuid::Uuid,
+    pub name: String,
+    pub pass: String
 }
+
+
+#[derive(FromRow)]
+pub struct LoginSchema {
+    pub id: uuid::Uuid,
+    pub name: String
+}
+
+#[derive(FromRow, Serialize)]
+pub struct UserCardSchema {
+    pub id: uuid::Uuid,
+    pub name: String
+}
+
 
 impl User {
     pub fn new(
@@ -25,17 +39,17 @@ impl User {
 pub async fn get_users(
     pool: &Pgsql,
     group_id: &uuid::Uuid
-) -> Result<Vec<User>, sqlx::Error> {
+) -> Result<Vec<UserCardSchema>, sqlx::Error> {
     let query = r#"
         SELECT
-            id, group_id, name
+            id, name
         FROM
             users
         WHERE
             group_id = $1
     "#;
 
-    sqlx::query_as::<_, User>(query)
+    sqlx::query_as::<_, UserCardSchema>(query)
         .bind(group_id)
         .fetch_all(pool)
         .await
@@ -72,8 +86,8 @@ pub async fn create_user(
     "#;
 
     sqlx::query::<Postgres>(query)
-        .bind(&user.id)
-        .bind(&user.group_id)
+        .bind(user.id)
+        .bind(user.group_id)
         .bind(&user.name)
         .bind(&user.pass)
         .execute(pool)
@@ -87,7 +101,7 @@ pub async fn delete_user(
     let query = r#"
         DELETE FROM users
         WHERE
-            id = &1
+            id = $1
     "#;
 
     sqlx::query::<Postgres>(query)
@@ -99,21 +113,18 @@ pub async fn delete_user(
 
 pub async fn login(
     pool: &Pgsql,
-    group_id: &uuid::Uuid,
     name: &str,
     pass: &str
-) -> Result<User, sqlx::Error> {
+) -> Result<LoginSchema, sqlx::Error> {
     let query = r#"
         SELECT
-            id, group_id, name
+            id, name
         FROM
             users
         WHERE
-            group_id = $1 AND name = $2 AND pass = $3
+            name = $1 AND pass = $2
     "#;
-
-    sqlx::query_as::<_, User>(query)
-        .bind(group_id)
+    sqlx::query_as::<_, LoginSchema>(query)
         .bind(name)
         .bind(pass)
         .fetch_one(pool)

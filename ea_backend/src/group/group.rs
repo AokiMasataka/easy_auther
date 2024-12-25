@@ -90,8 +90,8 @@ pub async fn delete_group(
 
 pub async fn get_public_key(
     pool: &Pgsql,
-    group_id: uuid::Uuid
-) -> String {
+    group_id: &uuid::Uuid
+) -> RS384PublicKey {
     let query = r#"
         SELECT
             public_key
@@ -101,19 +101,19 @@ pub async fn get_public_key(
             id = $1
         "#;
 
-    let public_key = sqlx::query_scalar(query)
+    let pem: String = sqlx::query_scalar(query)
         .bind(group_id)
         .fetch_one(pool)
         .await
         .unwrap();
     
-    return public_key;
+    RS384PublicKey::from_pem(&pem).unwrap()
 }
 
 pub async fn get_private_key(
     pool: &Pgsql,
-    group_id: uuid::Uuid
-) -> String {
+    group_id: &uuid::Uuid
+) -> RS384KeyPair {
     let query = r#"
         SELECT
             private_key
@@ -123,13 +123,13 @@ pub async fn get_private_key(
             id = $1
         "#;
 
-    let private_key = sqlx::query_scalar(query)
+    let pem: String = sqlx::query_scalar(query)
         .bind(group_id)
         .fetch_one(pool)
         .await
         .unwrap();
 
-    return private_key;
+    RS384KeyPair::from_pem(&pem).unwrap()
 }
 
 
@@ -147,11 +147,9 @@ pub async fn login(
             name = $1 AND pass = $2
     "#;
 
-    let result = sqlx::query_as::<_, LoginSchema>(query)
+    sqlx::query_as::<_, LoginSchema>(query)
         .bind(name)
         .bind(pass)
         .fetch_one(pool)
-        .await;
-
-    return result;
+        .await
 }
