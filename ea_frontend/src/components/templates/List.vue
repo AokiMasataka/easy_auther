@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { ItemInfo } from '../../scripts/types';
-import DeleteBtn from './BeleteBtn.vue';
+import DeleteBtn from './DeleteBtn.vue';
 
 const headers = [
     {title: "ID", key: "id"},

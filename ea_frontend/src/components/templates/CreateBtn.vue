@@ -1,66 +1,38 @@
 <template>
     <v-btn
-        @click="formOpne"
-    >Create New User</v-btn>
+        @click="formOpen"
+    >{{ props.title }}</v-btn>
 
     <v-dialog v-model="isAvtiveDialog" max-width="600">
-        <v-card
-            title="Create Form"
-        >
-            <div class="mx-8">
-                <v-text-field
-                    v-model="createData.name"
-                    class="mt-4"
-                    label="name"
-                ></v-text-field>
-
-                <v-text-field
-                    v-model="createData.pass"
-                    label="password"
-                ></v-text-field>
-            </div>
-            <v-card-actions>
-                <v-btn
-                    color="promary"
-                    @click="onCreate"
-                >Create</v-btn>
-                <v-btn
-                    @click="formClose"
-                >Cansel</v-btn>
-            </v-card-actions>
-        </v-card>
+        <CreateForm
+            :title="props.title"
+            v-model="createData"
+            @on-create="createUser"
+            @on-close="formClose"
+        />
     </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { AuthInfo } from '../../scripts/types';
+import CreateForm from '../common/CreateForm.vue';
 
 const isAvtiveDialog = ref<boolean>(false);
 const createData = ref<AuthInfo>({name: "", pass: ""});
+const props = defineProps<{title: string}>();
+const emit = defineEmits<{(e: 'onCreate', name: string, pass: string): void}>();
 
-
-const emit = defineEmits<{
-    (e: 'onCreate', name: string, pass: string): void,
-}>();
-
-function onCreate() {
-    console.log(createData.value.name);
-    emit(
+async function createUser() {
+    await emit(
         'onCreate',
         createData.value.name,
         createData.value.pass
     );
-
     formClose();
 }
 
-function formOpne() {
-    isAvtiveDialog.value = true;
-}
-
-function formClose() {
-    isAvtiveDialog.value = false;
-}
+function formOpen() { isAvtiveDialog.value = true; };
+function formClose() { isAvtiveDialog.value = false; };
 
 </script>

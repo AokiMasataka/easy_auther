@@ -25,6 +25,7 @@ const props = defineProps<{
     name: string,
     id: string
 }>()
+
 const emit = defineEmits<{
     (e: 'onDelete'): void
 }>();

@@ -1,7 +1,8 @@
 <template>
     <div class="mt-3 flex justify-center">
         <CreateBtn
-            @click="createUser"
+            title="Create New User"
+            @on-create="createUser"
         />
     </div>
 
@@ -19,28 +20,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { userApi } from '../scripts/api';
-import { UserInfo } from '../scripts/types';
 import CreateBtn from '../components/templates/CreateBtn.vue';
 import List from '../components/templates/List.vue';
+import * as api from '../scripts/apis/userApi';
+import { ItemInfo } from '../scripts/types';
 
 const route = useRoute();
 const groupId = route.params.groupId as string;
 
-const users = ref<UserInfo[]>([{name: "", id: ""}]);
+const users = ref<ItemInfo[]>([]);
 
 async function fetchUsers() {
-    users.value = await userApi.getUsers(groupId);
-    console.log("fetch user");
+    users.value = await api.getUsers(groupId);
 };
 
 async function createUser(name: string, pass: string) {
-    userApi.createUser(groupId, name, pass);
+    await api.createUser(groupId, name, pass);
     fetchUsers();
 }
 
 async function deleteUser(userId: string) {
-    await userApi.deleteUser(groupId, userId);
+    await api.deleteUser(groupId, userId);
     fetchUsers();
 };
 
@@ -48,5 +48,5 @@ function uri(userId: string): string  {
     return `http://localhost:3000/${groupId}/${userId}`;
 };
 
-onMounted(fetchUsers());
+onMounted(fetchUsers);
 </script>

@@ -20,7 +20,7 @@
             </div>
             
             <v-card-actions class="mx-12">
-                <v-btn @click="login">Login</v-btn>
+                <v-btn @click="onLogin">Login</v-btn>
                 <v-btn class="ml-4" @click="toCreatePage">Create Group</v-btn>
             </v-card-actions>
         </v-card>
@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { LoginApi } from '../scripts/api';
+import { login } from '../scripts/apis/groupApi';
 import { setRefreshToken, setToken } from '../scripts/cookie';
 import { AuthInfo } from '../scripts/types';
 
@@ -41,14 +41,14 @@ function toCreatePage() {
 }
 
 
-async function login() {
-    const respone = await LoginApi.login(
+async function onLogin() {
+    const respone = await login(
         authData.value.name,
         authData.value.pass
     );
 
     setToken(respone.token);
-    setRefreshToken(respone.refresh_tokrn);
+    setRefreshToken(respone.refresh_token);
     window.location.href = `http://localhost:3000/${respone.id}/users`;
 }
 
