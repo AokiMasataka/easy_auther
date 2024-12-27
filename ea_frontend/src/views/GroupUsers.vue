@@ -8,7 +8,7 @@
 
     <div class="mt-3 flex justify-center">
         <div class="w-2/3 flex items-center">
-            <List
+            <UserTable
                 :items="users"
                 :uri="uri"
                 @on-delete="deleteUser"
@@ -20,9 +20,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import CreateBtn from '../components/templates/CreateBtn.vue';
-import List from '../components/templates/List.vue';
-import * as api from '../scripts/apis/userApi';
+import CreateBtn from '../components/CreateBtn';
+import UserTable from '../components/UserTable';
+import { userApi } from '../scripts/apis';
 import { ItemInfo } from '../scripts/types';
 
 const route = useRoute();
@@ -31,16 +31,16 @@ const groupId = route.params.groupId as string;
 const users = ref<ItemInfo[]>([]);
 
 async function fetchUsers() {
-    users.value = await api.getUsers(groupId);
+    users.value = await userApi.getUsers(groupId);
 };
 
 async function createUser(name: string, pass: string) {
-    await api.createUser(groupId, name, pass);
+    await userApi.createUser(groupId, name, pass);
     fetchUsers();
 }
 
 async function deleteUser(userId: string) {
-    await api.deleteUser(groupId, userId);
+    await userApi.deleteUser(groupId, userId);
     fetchUsers();
 };
 

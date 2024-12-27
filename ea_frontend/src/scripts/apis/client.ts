@@ -1,4 +1,4 @@
-import { getToken } from "./cookie.ts";
+import { getToken } from "../cookie.ts";
 
 
 class EzAutherClient {

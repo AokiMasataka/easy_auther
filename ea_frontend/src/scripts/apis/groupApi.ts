@@ -1,5 +1,5 @@
-import { client } from "../client.ts";
 import { LoginResponse } from '../types.ts';
+import { client } from "./client.ts";
 import { CreatePesponse } from "./schema.ts";
 
 

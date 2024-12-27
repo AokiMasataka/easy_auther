@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import DeleteForm from '../common/DeleteForm.vue';
+import DeleteForm from './Form.vue';
 
 const props = defineProps<{
     title: string,

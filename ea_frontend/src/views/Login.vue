@@ -25,11 +25,12 @@
             </v-card-actions>
         </v-card>
     </div>
+    
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { login } from '../scripts/apis/groupApi';
+import { groupApi } from '../scripts/apis';
 import { setRefreshToken, setToken } from '../scripts/cookie';
 import { AuthInfo } from '../scripts/types';
 
@@ -42,7 +43,7 @@ function toCreatePage() {
 
 
 async function onLogin() {
-    const respone = await login(
+    const respone = await groupApi.login(
         authData.value.name,
         authData.value.pass
     );

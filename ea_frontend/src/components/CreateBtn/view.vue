@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { AuthInfo } from '../../scripts/types';
-import CreateForm from '../common/CreateForm.vue';
+import CreateForm from './Form.vue';
 
 const isAvtiveDialog = ref<boolean>(false);
 const createData = ref<AuthInfo>({name: "", pass: ""});
@@ -34,5 +34,4 @@ async function createUser() {
 
 function formOpen() { isAvtiveDialog.value = true; };
 function formClose() { isAvtiveDialog.value = false; };
-
 </script>

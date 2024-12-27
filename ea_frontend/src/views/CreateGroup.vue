@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { groupApi } from '../scripts/api';
+import { groupApi } from '../scripts/apis';
 import { AuthInfo } from '../scripts/types';
 
 const authData = ref<AuthInfo>({name: "", pass: ""});
