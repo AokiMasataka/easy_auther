@@ -1,15 +1,26 @@
 <template>
     <v-app>
-      <v-main>
-        <Header></Header>
-        <SideBar></SideBar>
-        <router-view/>
-      </v-main>
+        <div v-if="showHeader()">
+            <Header></Header>
+            <SideBar></SideBar>
+        </div>
+        <v-main>
+            <router-view/>
+        </v-main>
     </v-app>
-  </template>
+</template>
   
-  <script setup lang="ts">
-  import Header from './components/templates/Header.vue';
-  import SideBar from './components/templates/SideBar.vue';
-  </script>
+<script setup lang="ts">
+import { useRoute } from "vue-router";
+import Header from './components/Header';
+import SideBar from './components/SideBar';
+
+const route = useRoute();
+
+function showHeader(): boolean {
+    const noHeaderRoutes = ["/login", "/create"]; // ヘッダーを表示しないページのパス
+    return !noHeaderRoutes.includes(route.path);
+}
+
+</script>
   

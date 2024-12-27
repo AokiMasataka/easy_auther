@@ -32,15 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import { AuthInfo } from '@/scripts/types';
+import { AuthInfo } from '../../scripts/types';
 
-const props = defineProps<{
-    title: string,
-}>();
-
+const props = defineProps<{title: string}>();
 const model = defineModel<AuthInfo>({ required: true });
 
-defineEmits<{
+const emit = defineEmits<{
     (e: 'onClose'): void,
     (e: 'onCreate'): void,
 }>();
