@@ -1,3 +1,5 @@
+use std::process::id;
+
 use actix_web::{HttpRequest, HttpResponse, web};
 use serde::{Serialize, Deserialize};
 use jwt_simple::prelude::*;
@@ -5,7 +7,6 @@ use sqlx::types::uuid;
 
 use crate::group;
 use crate::user::user;
-use crate::group::token::{self, GroupClaims};
 use crate::model::config::Pgsql;
 
 
@@ -38,6 +39,17 @@ struct GetAllResponse {
     users: Vec<user::UserCardSchema>
 }
 
+
+#[derive(Deserialize)]
+pub struct VerifyRequest {
+    token: String
+}
+
+
+#[derive(Serialize)]
+pub struct RefreshResponse {
+    token: String
+}
 
 pub async fn get_users(
     pool: web::Data<Pgsql>,
@@ -120,7 +132,7 @@ pub async fn login(
 ) -> HttpResponse {
     let claims = match authorization(&req, &private_key) {
         Ok(claims) => claims,
-        Err(e) => return HttpResponse::Unauthorized().body(e.to_string()),
+        Err(_) => return HttpResponse::Unauthorized().finish(),
     };
     
     let schema = match user::login(
@@ -136,8 +148,8 @@ pub async fn login(
     };
 
     let key = group::group::get_private_key(&pool, &claims.custom.id).await;
-    let jwt = token::create_jwt(&key, schema.id, &schema.name, false);
-    let refresh_jwt = token::create_jwt(&key, schema.id, &schema.name, true);
+    let jwt = group::token::create_jwt(&key, schema.id, &schema.name, false);
+    let refresh_jwt = group::token::create_jwt(&key, schema.id, &schema.name, true);
 
     HttpResponse::Ok().json(
         LoginUserResponse{id: schema.id, token: jwt, refresh_token: refresh_jwt}
@@ -145,14 +157,58 @@ pub async fn login(
 }
 
 
+pub async fn verify(
+    pool: web::Data<Pgsql>,
+    private_key: web::Data<RS384KeyPair>,
+    payload: web::Data<VerifyRequest>,
+    req: HttpRequest
+) -> HttpResponse {
+    let group_claims = match authorization(&req, &private_key) {
+        Ok(claims) => claims,
+        Err(_) => return HttpResponse::Unauthorized().finish()
+    };
+
+    let key = group::group::get_public_key(&pool, &group_claims.custom.id).await;
+    match key.verify_token::<group::token::GroupClaims>(&payload.token, None) {
+        Ok(_) => HttpResponse::Ok().body(""),
+        Err(_) => HttpResponse::Unauthorized().finish()
+    }
+}
+
+
+pub async fn refresh(
+    pool: web::Data<Pgsql>,
+    private_key: web::Data<RS384KeyPair>,
+    payload: web::Json<VerifyRequest>,
+    req: HttpRequest
+) -> HttpResponse {
+    let claims = match authorization(&req, &private_key) {
+        Ok(claims) => claims,
+        Err(_) => return HttpResponse::Unauthorized().finish()
+    };
+    
+    let key = group::group::get_public_key(&pool, &claims.custom.id).await;
+
+    match key.verify_token::<group::token::GroupClaims>(&payload.token, None){
+        Ok(user_claims) => {
+            let pri_key = group::group::get_private_key(&pool, &claims.custom.id).await;
+            let response = RefreshResponse{
+                token: group::token::create_jwt(&pri_key, user_claims.custom.id, &user_claims.custom.name, false)
+            };
+            HttpResponse::Ok().json(response)
+        },
+        Err(_) => HttpResponse::Unauthorized().finish()
+    }
+}
+
+
 fn authorization(
     req: &HttpRequest,
     private_key: &RS384KeyPair
-) -> Result<JWTClaims<GroupClaims>, jwt_simple::Error> {
+) -> Result<JWTClaims<group::token::GroupClaims>, jwt_simple::Error> {
     let token = req.headers().get("Authorization").unwrap();
     let token = token.to_str().unwrap();
 
-    private_key.public_key().verify_token::<GroupClaims>(token, None)
+    private_key.public_key().verify_token::<group::token::GroupClaims>(token, None)
 }
-
 

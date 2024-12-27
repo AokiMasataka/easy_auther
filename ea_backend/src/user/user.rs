@@ -130,3 +130,4 @@ pub async fn login(
         .fetch_one(pool)
         .await
 }
+

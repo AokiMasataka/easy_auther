@@ -51,6 +51,8 @@ async fn main() -> std::io::Result<()> {
                     .route("/user", web::post().to(user::controller::create_user))
                     .route("/{user_id}", web::delete().to(user::controller::delete_user))
                     .route("/login", web::post().to(user::controller::login))
+                    .route("/verify", web::post().to(user::controller::verify))
+                    .route("/refresh", web::post().to(user::controller::refresh))
             )
     })
     .bind(("127.0.0.1", port))?
