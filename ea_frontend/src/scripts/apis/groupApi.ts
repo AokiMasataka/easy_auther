@@ -1,11 +1,10 @@
-import { LoginResponse } from '../types.ts';
 import { client } from "./client.ts";
-import { CreatePesponse } from "./schema.ts";
+import { CreateResponse, LoginResponse } from "./schema.ts";
 
 
 export async function createGroup(
     name: string, pass: string
-): Promise<CreatePesponse>{
+): Promise<CreateResponse>{
     const reponse = await client.post("group", {name: name, pass: pass});
     return await reponse.json();
 }
