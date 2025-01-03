@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17.2-alpine3.21
+    container_name: postgres
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgresql/db_store:/var/lib/postgresql/data
+      - ./postgresql/init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=${PGSQL_USER}
+      - POSTGRES_PASSWORD=${PGSQL_PASS}
+      - POSTGRES_DB=${PGSQL_DB}

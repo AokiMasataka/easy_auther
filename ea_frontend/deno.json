@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "dev": "deno run -A --node-modules-dir npm:vite",
+    "build": "deno run -A --node-modules-dir npm:vite build",
+    "preview": "deno run -A --node-modules-dir npm:vite preview",
+    "serve": "deno run --allow-net --allow-read https://deno.land/std@0.157.0/http/file_server.ts dist/"
+  },
+  "imports": {
+    "autoprefixer": "npm:autoprefixer@^10.4.20",
+    "postcss": "npm:postcss@^8.4.49",
+    "tailwindcss": "npm:tailwindcss@^3.4.16",
+    "vuetify": "npm:vuetify@3",
+    "vue-router": "npm:vue-router",
+    "@mdi/font": "npm:@mdi/font"
+  }
+}
