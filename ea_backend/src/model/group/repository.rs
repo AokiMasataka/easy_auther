@@ -1,53 +1,11 @@
-use sqlx::{postgres::PgQueryResult, Postgres, FromRow, types::uuid};
-use serde::{Serialize, Deserialize};
+use sqlx::{postgres::PgQueryResult, Postgres};
 use jwt_simple::prelude::*;
 
-use crate::model::config::Pgsql;
+use crate::model::Pgsql;
+use crate::model::group::schema::{Group, Identity};
 
 
-#[derive(FromRow, Serialize, Deserialize)]
-pub struct Group {
-    pub id: uuid::Uuid,
-    pub name: String,
-    pub pass: String,
-    pub private_key: String,
-    pub public_key: String,
-}
-
-#[derive(FromRow)]
-pub struct LoginSchema {
-    pub id: uuid::Uuid,
-    pub name: String,
-}
-
-
-impl Group {
-    pub fn new(name: String, pass: String) -> Self {
-        let id = uuid::Uuid::new_v4();
-        
-        let private_key = RS384KeyPair::generate(2048)
-            .unwrap()
-            .to_pem()
-            .unwrap();
-
-        let public_key = RS384KeyPair::from_pem(&private_key)
-            .unwrap()
-            .public_key()
-            .to_pem()
-            .unwrap();
-
-        Group{
-            id,
-            name,
-            pass,
-            private_key,
-            public_key,
-        }
-    }
-}
-
-
-pub async fn create_group(
+pub async fn create(
     pool: &Pgsql,
     group: &Group
 ) -> Result<PgQueryResult, sqlx::Error> {
@@ -70,7 +28,31 @@ pub async fn create_group(
     return result;
 }
 
-pub async fn delete_group(
+pub async fn update(
+    pool: &Pgsql,
+    group: &Group
+) -> Result<PgQueryResult, sqlx::Error> {
+    let query = r#"
+        UPDATE groups
+        SET
+            name = '$2', pass = '$3', private_key = '$4', public_key = '$5'
+        WHERE
+            id = $1
+    "#;
+
+    let result = sqlx::query::<Postgres>(query)
+        .bind(&group.id)
+        .bind(&group.name)
+        .bind(&group.pass)
+        .bind(&group.private_key)
+        .bind(&group.public_key)
+        .execute(pool)
+        .await;
+
+    return result;
+}
+
+pub async fn delete(
     pool: &Pgsql,
     group_id: &uuid::Uuid
 ) -> Result<PgQueryResult, sqlx::Error> {
@@ -87,6 +69,7 @@ pub async fn delete_group(
 
     return res;
 }
+pub async fn _get() {}
 
 pub async fn get_public_key(
     pool: &Pgsql,
@@ -132,12 +115,11 @@ pub async fn get_private_key(
     RS384KeyPair::from_pem(&pem).unwrap()
 }
 
-
 pub async fn login(
     pool: &Pgsql,
     name: &str,
     pass: &str
-) -> Result<LoginSchema, sqlx::Error> {
+) -> Result<Identity, sqlx::Error> {
     let query = r#"
         SELECT
             id, name
@@ -147,7 +129,7 @@ pub async fn login(
             name = $1 AND pass = $2
     "#;
 
-    sqlx::query_as::<_, LoginSchema>(query)
+    sqlx::query_as::<_, Identity>(query)
         .bind(name)
         .bind(pass)
         .fetch_one(pool)

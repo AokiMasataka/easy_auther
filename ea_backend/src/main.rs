@@ -3,9 +3,10 @@ use actix_cors::Cors;
 use actix_web::{web, http, App, HttpServer};
 
 mod model;
-mod group;
-mod user;
-mod middleweres;
+mod api;
+mod utils;
+
+use api::{group, user};
 
 
 #[actix_web::main]
@@ -27,32 +28,34 @@ async fn main() -> std::io::Result<()> {
         .expect("Plz input port");
     println!("serve on http://localhost:{}", port);
     
-    let private_key = group::token::create_private_key();
+    let private_key = utils::jwt::create_private_key();
 
     HttpServer::new( move || {
         let cors = Cors::default()
-        .allowed_origin("http://localhost:3000")
-        .allowed_methods(vec!["GET", "POST", "DELETE"])
-        .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-        .allowed_header(http::header::CONTENT_TYPE)
-        .max_age(3600);
+            .allowed_origin("http://localhost:3000/")
+            .allowed_origin("")
+            .allowed_methods(vec!["GET", "POST", "DELETE"])
+            .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+            .allowed_header(http::header::CONTENT_TYPE)
+            .max_age(3600);
+        let cors = Cors::permissive();
 
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             .app_data(web::Data::new(private_key.clone()))
-            .route("/login", web::post().to(group::controller::login_group))
-            .route("/refresh", web::post().to(group::controller::refresh_token))
-            .route("/group", web::post().to(group::controller::create_group))
-            .route("/{group_id}", web::delete().to(group::controller::delete_group))
+            .route("/login", web::post().to(group::login))
+            .route("/refresh", web::post().to(group::refresh))
+            .route("/group", web::post().to(group::create))
+            .route("/{group_id}", web::delete().to(group::delete))
             .service(
                 web::scope("/{group_id}")
-                    .route("/users", web::get().to(user::controller::get_users))
-                    .route("/user", web::post().to(user::controller::create_user))
-                    .route("/{user_id}", web::delete().to(user::controller::delete_user))
-                    .route("/login", web::post().to(user::controller::login))
-                    .route("/verify", web::post().to(user::controller::verify))
-                    .route("/refresh", web::post().to(user::controller::refresh))
+                    .route("/users", web::get().to(user::get_all))
+                    .route("/user", web::post().to(user::create))
+                    .route("/{user_id}", web::delete().to(user::delete))
+                    .route("/login", web::post().to(user::login))
+                    .route("/refresh", web::post().to(user::refresh))
+                    .route("/verify", web::post().to(user::verify))
             )
     })
     .bind(("127.0.0.1", port))?
