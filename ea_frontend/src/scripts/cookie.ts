@@ -11,11 +11,11 @@ export function setRefreshToken(token: string) {
 }
 
 export function getToken(): string {
-    return _getToken("token");
+    return _getToken('token');
 }
 
 export function getRefreshToken(): string {
-    return _getToken("refreshToken");
+    return _getToken('refreshToken');
 }
 
 function _getToken (name: string): string {

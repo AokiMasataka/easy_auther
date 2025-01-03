@@ -1,4 +1,4 @@
-import { getToken } from "../cookie.ts";
+import { getRefreshToken, getToken, setToken } from "../cookie.ts";
 
 
 class EzAutherClient {
@@ -21,7 +21,7 @@ class EzAutherClient {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token
+                'authorization': token
             },
         };
         
@@ -29,10 +29,9 @@ class EzAutherClient {
             const response = await fetch(url, request);
             
             if (response.status == 401) {
-                
                 const response = await fetch(url, request);
             }
-
+            
             if (!response.ok) {
                 throw new Error(`status: ${response.status}`);
             };
@@ -44,16 +43,40 @@ class EzAutherClient {
         };
     };
 
-    async post(endpoint: string, body: any): Promise<Response> {
+    async post(endpoint: string, body?: any): Promise<Response> {
         const url = this.prefix() + endpoint;
         const token = getToken();
         const request = {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token
+                'authorization': token
             },
             body: JSON.stringify(body)
+        };
+
+        const response = await fetch(url, request);
+        if (response.status == 401) {
+            await this.refresh();
+            const response = await fetch(url, request);
+            if (!response.ok) {
+                window.location.href = 'http://localhost:3000/login';
+                throw new Error(`HTTP Error: ${response.status}`);
+            };
+        };
+
+        return response;
+    };
+
+    async delete(endpoint: string): Promise<Response> {
+        const url = this.prefix() + endpoint;
+        const token = getToken();
+        const request = {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': token
+            },
         };
         
         try {
@@ -68,27 +91,39 @@ class EzAutherClient {
         };
     };
 
-    async delete(endpoint: string): Promise<Response> {
-        const url = this.prefix() + endpoint;
-        const token = getToken();
+    async login(name: string, pass: string): Promise<Response> {
+        const url = this.prefix() + "login";
         const request = {
-            method: "DELETE",
+            method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token
+            },
+            body: JSON.stringify({name: name, pass: pass})
+        };
+
+        const response = await fetch(url, request);
+        return response;
+    }
+
+    async refresh() {
+        const url = this.prefix() + "refresh";
+        const refreshToken = getRefreshToken();
+        const request = {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': refreshToken
             },
         };
-        
-        try {
-            const response = await fetch(url, request);
-            if (!response.ok) {
-                throw new Error(`status: ${response.status}`);
-            };
 
-            return response;
-        } catch (error) {
-            throw error;
+        const response = await fetch(url, request);
+        
+        if (!response.ok){
+            window.location.href = 'http://localhost:3000/login';
+            throw new Error(`HTTP Error: ${response.status}`);
         };
+        const jwt = (await response.json()).jwt;
+        setToken(jwt);
     };
 }
 

@@ -19,6 +19,6 @@ export async function login(
     name: string,
     pass: string
 ): Promise<LoginResponse> {
-    const reponse = await client.post(`login`, {name: name, pass: pass});
+    const reponse = await client.login(name, pass);
     return await reponse.json();
 }

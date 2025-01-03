@@ -4,6 +4,6 @@ export type CreateResponse = {
 
 export type LoginResponse = {
     id: string,
-    token: string,
-    refresh_token: string
+    jwt: string,
+    refresh_jwt: string
 }

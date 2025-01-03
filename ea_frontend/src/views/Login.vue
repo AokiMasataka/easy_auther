@@ -48,8 +48,8 @@ async function onLogin() {
         authData.value.pass
     );
 
-    setToken(respone.token);
-    setRefreshToken(respone.refresh_token);
+    setToken(respone.jwt);
+    setRefreshToken(respone.refresh_jwt);
     window.location.href = `http://localhost:3000/${respone.id}/users`;
 }
 
