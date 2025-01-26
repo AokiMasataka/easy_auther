@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
                     .route("/verify", web::post().to(user::verify))
             )
     })
-    .bind(("127.0.0.1", port))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await
 }

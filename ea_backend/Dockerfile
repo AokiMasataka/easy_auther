@@ -1,11 +1,15 @@
-FROM rust:label as builder
+FROM rust:1.84.0-bullseye AS build
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY ./Cargo.toml ./
-COPY ./Cargo.lock ./
-COPY ./src ./
+RUN apt update
+RUN apt install -y build-essential
+RUN apt install -y cmake
+RUN apt install -y libclang-dev
 
-RUN cargo build
+COPY ./ .
+RUN cargo build --release
 
-FROM 
+FROM debian:bullseye-slim
+COPY --from=build /workspace/target/release/ea_backend /usr/local/bin/ea_backend
+CMD ["ea_backend"]
