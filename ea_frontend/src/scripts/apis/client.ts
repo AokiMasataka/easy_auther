@@ -21,7 +21,7 @@ class EzAutherClient {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': token
+                'X-Authorization': token
             },
         };
         
@@ -50,7 +50,7 @@ class EzAutherClient {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': token
+                'X-Authorization': token
             },
             body: JSON.stringify(body)
         };
@@ -75,7 +75,7 @@ class EzAutherClient {
             method: "DELETE",
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': token
+                'X-Authorization': token
             },
         };
         
@@ -112,7 +112,7 @@ class EzAutherClient {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': refreshToken
+                'X-Authorization': refreshToken
             },
         };
 
