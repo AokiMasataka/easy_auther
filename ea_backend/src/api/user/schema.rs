@@ -1,8 +1,6 @@
 use sqlx::types::uuid;
 use serde::{Serialize, Deserialize};
 
-use crate::model::user;
-
 
 #[derive(Deserialize)]
 pub struct CreateRequest {
@@ -41,11 +39,5 @@ pub struct RefreshRequest {
 #[derive(Serialize)]
 pub struct RefreshResponse {
     pub jwt: String
-}
-
-
-#[derive(Serialize)]
-pub struct GetAllResponse {
-    pub users: Vec<user::UserCardSchema>
 }
 

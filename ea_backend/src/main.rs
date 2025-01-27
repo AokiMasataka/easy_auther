@@ -1,6 +1,6 @@
 use dotenv;
 use actix_cors::Cors;
-use actix_web::{web, http, App, HttpServer};
+use actix_web::{web, http, middleware, App, HttpServer};
 
 mod model;
 mod api;
@@ -31,13 +31,13 @@ async fn main() -> std::io::Result<()> {
     let private_key = utils::jwt::create_private_key();
 
     HttpServer::new( move || {
-        let cors = Cors::default()
-            .allowed_origin("http://localhost:3000/")
-            .allowed_origin("")
-            .allowed_methods(vec!["GET", "POST", "DELETE"])
-            .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-            .allowed_header(http::header::CONTENT_TYPE)
-            .max_age(3600);
+        //let cors = Cors::default()
+        //    .allowed_origin("http://localhost:3000/")
+        //    .allowed_origin("")
+        //    .allowed_methods(vec!["GET", "POST", "DELETE"])
+        //    .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+        //    .allowed_header(http::header::CONTENT_TYPE)
+        //    .max_age(3600);
         let cors = Cors::permissive();
 
         App::new()
@@ -47,15 +47,17 @@ async fn main() -> std::io::Result<()> {
             .route("/login", web::post().to(group::login))
             .route("/refresh", web::post().to(group::refresh))
             .route("/group", web::post().to(group::create))
-            .route("/{group_id}", web::delete().to(group::delete))
             .service(
                 web::scope("/{group_id}")
-                    .route("/users", web::get().to(user::get_all))
-                    .route("/user", web::post().to(user::create))
-                    .route("/{user_id}", web::delete().to(user::delete))
-                    .route("/login", web::post().to(user::login))
-                    .route("/refresh", web::post().to(user::refresh))
-                    .route("/verify", web::post().to(user::verify))
+                    .wrap(middleware::from_fn(utils::authorize_middleware))
+                        .route("/", web::put().to(group::update))
+                        .route("/", web::delete().to(group::delete))
+                        .route("/users", web::get().to(group::get_users))
+                        .route("/user", web::post().to(user::create))
+                        .route("/user/{user_id}", web::delete().to(user::delete))
+                        .route("/login", web::post().to(user::login))
+                        .route("/refresh", web::post().to(user::refresh))
+                        .route("/verify", web::post().to(user::verify))
             )
     })
     .bind(("0.0.0.0", port))?

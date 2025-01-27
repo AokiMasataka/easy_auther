@@ -3,7 +3,9 @@ pub mod schema;
 
 pub use controller::{
     create,
+    update,
     delete,
     login,
-    refresh
+    refresh,
+    get_users
 };

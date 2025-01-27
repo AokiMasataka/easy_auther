@@ -23,13 +23,6 @@ impl User{
 
 
 #[derive(FromRow, Serialize)]
-pub struct UserCardSchema {
-    id: uuid::Uuid,
-    name: String
-}
-
-
-#[derive(FromRow, Serialize)]
 pub struct Identity {
     pub id: uuid::Uuid,
     pub name: String

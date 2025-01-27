@@ -36,10 +36,23 @@ impl Group {
             public_key: public_pem
         }
     }
+
+    pub fn update(&mut self, name: String, pass: String) {
+        self.name = name;
+        self.pass = pass;
+    }
 }
+
 
 #[derive(FromRow, Serialize, Deserialize)]
 pub struct Identity {
     pub id: uuid::Uuid,
     pub name: String,
+}
+
+
+#[derive(FromRow, Serialize)]
+pub struct UserCardSchema {
+    id: uuid::Uuid,
+    name: String
 }

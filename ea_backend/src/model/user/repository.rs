@@ -1,7 +1,7 @@
 use sqlx::{postgres::PgQueryResult, Postgres};
 
 use crate::model::Pgsql;
-use crate::model::user::{User, schema::{UserCardSchema, Identity}};
+use super::schema::{User, Identity};
 
 
 pub async fn create(
@@ -21,25 +21,6 @@ pub async fn create(
         .bind(&user.name)
         .bind(&user.pass)
         .execute(pool)
-        .await
-}
-
-pub async fn get_all(
-    pool: &Pgsql,
-    group_id: &uuid::Uuid
-) -> Result<Vec<UserCardSchema>, sqlx::Error> {
-    let query = r#"
-        SELECT
-            id, name
-        FROM
-            users
-        WHERE
-            group_id = $1
-    "#;
-
-    sqlx::query_as::<_, UserCardSchema>(query)
-        .bind(group_id)
-        .fetch_all(pool)
         .await
 }
 

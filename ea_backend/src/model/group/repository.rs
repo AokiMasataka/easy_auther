@@ -2,7 +2,7 @@ use sqlx::{postgres::PgQueryResult, Postgres};
 use jwt_simple::prelude::*;
 
 use crate::model::Pgsql;
-use crate::model::group::schema::{Group, Identity};
+use super::schema::{Group, Identity, UserCardSchema};
 
 
 pub async fn create(
@@ -26,6 +26,25 @@ pub async fn create(
         .await;
 
     return result;
+}
+
+pub async fn get(
+    pool: &Pgsql,
+    group_id: &uuid::Uuid
+) -> Result<Group, sqlx::Error> {
+    let query = r#"
+        SELECT
+            (id, name, pass, private_key, public_key)
+        FROM
+            groups
+        WHERE
+            id = $1
+    "#;
+
+    sqlx::query_as::<_, Group>(query)
+        .bind(group_id)
+        .fetch_one(pool)
+        .await
 }
 
 pub async fn update(
@@ -69,7 +88,6 @@ pub async fn delete(
 
     return res;
 }
-pub async fn _get() {}
 
 pub async fn get_public_key(
     pool: &Pgsql,
@@ -113,6 +131,25 @@ pub async fn get_private_key(
         .unwrap();
 
     RS384KeyPair::from_pem(&pem).unwrap()
+}
+
+pub async fn get_users(
+    pool: &Pgsql,
+    group_id: &uuid::Uuid
+) -> Result<Vec<UserCardSchema>, sqlx::Error> {
+    let query = r#"
+        SELECT
+            id, name
+        FROM
+            users
+        WHERE
+            group_id = $1
+    "#;
+
+    sqlx::query_as::<_, UserCardSchema>(query)
+        .bind(group_id)
+        .fetch_all(pool)
+        .await
 }
 
 pub async fn login(

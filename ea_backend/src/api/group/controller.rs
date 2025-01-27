@@ -9,10 +9,24 @@ use super::schema::{
     CreateResponse,
     LoginRequest,
     LoginResponse,
-    RefreshResponse
+    RefreshResponse,
+    GetAllResponse
 };
 
 
+pub async fn get_users(
+    pool: web::Data<Pgsql>,
+    path: web::Path<uuid::Uuid>,
+) -> HttpResponse {
+        
+    match group::get_users(&pool, &path.into_inner()).await {
+        Ok(users) => HttpResponse::Ok().json(GetAllResponse{users}),
+        Err(e) => {
+            println!("Error: {}", e);
+            HttpResponse::InternalServerError().finish()
+        }
+    }
+}
 
 pub async fn create(
     pool: web::Data<Pgsql>,
@@ -29,6 +43,33 @@ pub async fn create(
             .json(CreateResponse{id: new_group.id}),
         Err(e) => {
             println!("[group create] Error: {}", e);
+            HttpResponse::InternalServerError().finish()
+        }
+    }
+}
+
+pub async fn update(
+    pool: web::Data<Pgsql>,
+    path: web::Path<uuid::Uuid>,
+    payload: web::Json<CreateRequest>
+) -> HttpResponse {
+    let group_id = path.into_inner();
+    let mut update_group = match group::get(&pool, &group_id).await {
+        Ok(g) => g,
+        Err(sqlx::Error::RowNotFound) => {
+            return HttpResponse::NotFound().finish()
+        },
+        Err(_) => {
+            return HttpResponse::InternalServerError().finish()
+        }
+    };
+    
+    update_group.update(payload.name.clone(), payload.pass.clone());
+
+    match group::update(&pool, &update_group).await {
+        Ok(_) => HttpResponse::NoContent().finish(),
+        Err(e) => {
+            println!("[group update] Error: {}", e);
             HttpResponse::InternalServerError().finish()
         }
     }
@@ -70,12 +111,10 @@ pub async fn login(
     
     let jwt = jwt::create_group_jwt(&private_key, identity.id, false);
     let refresh_jwt = jwt::create_group_jwt(&private_key, identity.id, true);
-
     HttpResponse::Ok().json(
         LoginResponse{id: identity.id, jwt, refresh_jwt}
     )
 }
-
 
 pub async fn refresh(
     private_key: web::Data<RS384KeyPair>,
@@ -101,5 +140,3 @@ pub async fn refresh(
         
     HttpResponse::Ok().json(RefreshResponse{jwt: new_jwt})
 }
-
-
