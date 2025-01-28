@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 actix-cors = "0.7.0"
 actix-web = "4.9.0"
-dotenv = "0.15.0"
 serde = "1.0.216"
 sqlx = { version = "0.8.2", features = [ "runtime-tokio", "postgres", "uuid", "chrono" ] }
 uuid = { version = "1.9.1", features = ["v4", "serde"] }

@@ -1,4 +1,3 @@
-use dotenv;
 use actix_cors::Cors;
 use actix_web::{web, http, middleware, App, HttpServer};
 
@@ -11,8 +10,6 @@ use api::{group, user};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::from_path("../.env").ok();
-
     let db_config = model::config::DataBaseConfig::new(
         std::env::var("PGSQL_HOST").expect("PGSQL_HOST must be set"),
         std::env::var("PGSQL_PORT").expect("PGSQL_PORT must be set"),

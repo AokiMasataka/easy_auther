@@ -24,7 +24,7 @@ export async function deleteUser(
     groupId: string,
     userId: string
 ) {
-    await client.delete(`${groupId}/${userId}`);
+    await client.delete(`${groupId}/user/${userId}`);
 }
 
 export async function login(

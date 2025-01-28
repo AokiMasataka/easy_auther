@@ -1,11 +1,11 @@
 services:
-  frnotend:
-    build: task_app_front
-    container_name: task-app-front
-    ports:
-      - 80:80
-      - 443:443
-  
+  # frnotend:
+  #   build: ea_frontend
+  #   container_name: ea-app-front
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+
   # backend:
   #   build: ea_backend
   #   container_name: ea-app-back
@@ -15,16 +15,16 @@ services:
   #     - 8080:8080
   #   environment:
   #     - BACKEND_PORT=8080
-  #     - PGSQL_HOST=postgres
+  #     - PGSQL_HOST=ea-app-db
   #     - PGSQL_USER=${PGSQL_USER}
   #     - PGSQL_PORT=${PGSQL_PORT}
   #     - PGSQL_USER=${PGSQL_USER}
   #     - PGSQL_PASS=${PGSQL_PASS}
   #     - PGSQL_DB=${PGSQL_DB}
-  
+
   postgres:
     image: postgres:17.2-alpine3.21
-    container_name: ea-app-postgres
+    container_name: ea-app-db
     shm_size: 128mb
     ports:
       - 5432:5432
