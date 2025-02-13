@@ -21,10 +21,11 @@ pub async fn create(
     path: web::Path<uuid::Uuid>,
     payload: web::Json<CreateRequest>
 ) -> HttpResponse {
+    let payload = payload.into_inner();
     let new_user = user::User::new(
         path.into_inner(),
-        payload.name.clone(),
-        payload.pass.clone()
+        payload.name,
+        payload.pass
     );
 
     match user::create(&pool, &new_user).await {

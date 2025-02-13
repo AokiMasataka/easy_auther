@@ -33,9 +33,10 @@ pub async fn create(
     payload: web::Json<CreateRequest>
 ) -> HttpResponse {
     println!("[group create] name: {}", &payload.name);
+    let payload = payload.into_inner();
     let new_group = group::Group::new(
-        payload.name.clone(),
-        payload.pass.clone()
+        payload.name,
+        payload.pass
     );
 
     match group::create(&pool, &new_group).await {
@@ -54,6 +55,7 @@ pub async fn update(
     payload: web::Json<CreateRequest>
 ) -> HttpResponse {
     let group_id = path.into_inner();
+    let payload = payload.into_inner();
     let mut update_group = match group::get(&pool, &group_id).await {
         Ok(g) => g,
         Err(sqlx::Error::RowNotFound) => {
@@ -64,7 +66,7 @@ pub async fn update(
         }
     };
     
-    update_group.update(payload.name.clone(), payload.pass.clone());
+    update_group.update(payload.name, payload.pass);
 
     match group::update(&pool, &update_group).await {
         Ok(_) => HttpResponse::NoContent().finish(),
