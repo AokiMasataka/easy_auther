@@ -18,7 +18,6 @@ services:
       - PGSQL_HOST=ea-app-db
       - PGSQL_USER=${PGSQL_USER}
       - PGSQL_PORT=${PGSQL_PORT}
-      - PGSQL_USER=${PGSQL_USER}
       - PGSQL_PASS=${PGSQL_PASS}
       - PGSQL_DB=${PGSQL_DB}
 

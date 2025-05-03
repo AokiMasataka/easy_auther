@@ -14,11 +14,11 @@ pub async fn authorize_middleware(
     req: ServiceRequest,
     next: Next<impl MessageBody>,
 ) -> Result<ServiceResponse<impl MessageBody>, Error> {
-    let jwt = if !req.headers().contains_key("X-Authorization") {
+    let jwt = if !req.headers().contains_key("Authorization") {
         println!("[auth middle]: Unauthorized");
         return Err(ErrorUnauthorized("Unauthorized: Missing Auth header"));
     } else {
-        req.headers().get("X-Authorization").unwrap().to_str().unwrap()
+        req.headers().get("Authorization").unwrap().to_str().unwrap()
     };
 
     let private_key = req.app_data::<actix_web::web::Data<RS384KeyPair>>().unwrap();
