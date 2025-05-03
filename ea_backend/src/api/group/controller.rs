@@ -111,8 +111,9 @@ pub async fn login(
         }
     };
     
-    let jwt = jwt::create_group_jwt(&private_key, identity.id, false);
-    let refresh_jwt = jwt::create_group_jwt(&private_key, identity.id, true);
+
+    let jwt = jwt::create_jwt(&private_key, identity.id, false);
+    let refresh_jwt = jwt::create_jwt(&private_key, identity.id, true);
     HttpResponse::Ok().json(
         LoginResponse{id: identity.id, jwt, refresh_jwt}
     )
@@ -132,13 +133,13 @@ pub async fn refresh(
 
     let claims = private_key
         .public_key()
-        .verify_token::<jwt::GroupClaims>(&jwt, None).unwrap();
+        .verify_token::<jwt::EaClaims>(&jwt, None).unwrap();
 
     if !claims.custom.is_refresh {
         return  HttpResponse::Unauthorized().body("Access tokens are not allowed");
     }
 
-    let new_jwt = jwt::create_group_jwt(&private_key, claims.custom.id, false);
+    let new_jwt = jwt::create_jwt(&private_key, claims.custom.id, false);
         
     HttpResponse::Ok().json(RefreshResponse{jwt: new_jwt})
 }

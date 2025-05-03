@@ -1,4 +1,5 @@
+import { FetchError } from './client.ts';
 import * as groupApi from './groupApi.ts';
 import * as userApi from './userApi.ts';
 
-export { groupApi, userApi };
+export { FetchError, groupApi, userApi };

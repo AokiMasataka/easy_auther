@@ -1,11 +1,25 @@
 use actix_cors::Cors;
-use actix_web::{web, http, middleware, App, HttpServer};
+use actix_web::{web, http, App, HttpServer};
 
 mod model;
 mod api;
 mod utils;
 
 use api::{group, user};
+
+
+fn cors_config() -> Cors {
+    Cors::default()
+        .allowed_origin("http://localhost:3000")
+        .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
+        .allowed_headers(vec![
+            http::header::AUTHORIZATION,
+            http::header::ACCEPT,
+            http::header::CONTENT_TYPE,
+        ])
+        .supports_credentials()
+        .max_age(3600)
+}
 
 
 #[actix_web::main]
@@ -28,16 +42,8 @@ async fn main() -> std::io::Result<()> {
     let private_key = utils::jwt::create_private_key();
 
     HttpServer::new( move || {
-        let cors = Cors::default()
-           .allowed_origin("http://localhost:3000")
-           .allowed_methods(vec!["GET", "POST", "DELETE"])
-           .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-           .allowed_header(http::header::CONTENT_TYPE)
-           .max_age(3600);
-        // let cors = Cors::permissive();
-
         App::new()
-            .wrap(cors)
+            .wrap(cors_config())
             .app_data(web::Data::new(pool.clone()))
             .app_data(web::Data::new(private_key.clone()))
             .route("/login", web::post().to(group::login))
@@ -45,7 +51,8 @@ async fn main() -> std::io::Result<()> {
             .route("/group", web::post().to(group::create))
             .service(
                 web::scope("/{group_id}")
-                    .wrap(middleware::from_fn(utils::authorize_middleware))
+                .wrap(cors_config())
+                .wrap(utils::Authorize)
                         .route("/", web::put().to(group::update))
                         .route("/", web::delete().to(group::delete))
                         .route("/users", web::get().to(group::get_users))

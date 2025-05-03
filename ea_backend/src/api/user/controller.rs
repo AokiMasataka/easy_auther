@@ -68,8 +68,8 @@ pub async fn login(
     };
 
     let key = group::get_private_key(&pool, &path.into_inner()).await;
-    let jwt = jwt::create_user_jwt(&key, identity.id, false);
-    let refresh_jwt = jwt::create_user_jwt(&key, identity.id, true);
+    let jwt = jwt::create_jwt(&key, identity.id, false);
+    let refresh_jwt = jwt::create_jwt(&key, identity.id, true);
 
     HttpResponse::Ok().json(
         LoginResponse{id: identity.id, jwt, refresh_jwt}
@@ -85,11 +85,11 @@ pub async fn refresh(
     let group_id = path.into_inner();
     let key = group::get_public_key(&pool, &group_id).await;
 
-    match key.verify_token::<jwt::UserClaims>(&payload.refresh_jwt, None) {
+    match key.verify_token::<jwt::EaClaims>(&payload.refresh_jwt, None) {
         Ok(user_claims) => {
             let private_key = group::get_private_key(&pool, &group_id).await;
             let response = RefreshResponse{
-                jwt: jwt::create_user_jwt(&private_key, user_claims.custom.id, false)
+                jwt: jwt::create_jwt(&private_key, user_claims.custom.id, false)
             };
             HttpResponse::Ok().json(response)
         },
@@ -103,7 +103,7 @@ pub async fn verify(
     payload: web::Json<VerifyRequest>,
 ) -> HttpResponse {
     let key = group::get_public_key(&pool, &path.into_inner()).await;
-    match key.verify_token::<jwt::UserClaims>(&payload.jwt, None) {
+    match key.verify_token::<jwt::EaClaims>(&payload.jwt, None) {
         Ok(_) => HttpResponse::Ok().finish(),
         Err(e) => {
             println!("[user verfiy] Error: {}", e);
