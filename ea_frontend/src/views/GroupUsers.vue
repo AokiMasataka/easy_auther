@@ -22,7 +22,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import CreateBtn from '../components/CreateBtn';
 import UserTable from '../components/UserTable';
-import { userApi } from '../scripts/apis';
+import { userApi, FetchError } from '../scripts/apis';
 import { ItemInfo } from '../scripts/types';
 
 const route = useRoute();
@@ -35,8 +35,19 @@ async function fetchUsers() {
 };
 
 async function createUser(name: string, pass: string) {
-    await userApi.createUser(groupId, name, pass);
-    fetchUsers();
+    try{
+        await userApi.createUser(groupId, name, pass);
+    } catch(err) {
+        if(err instanceof TypeError) {
+            console.log("vue:", err);
+        } else if (err instanceof FetchError) {
+            console.log("vue:", err);
+            if (err.code == 401) {
+                
+            }
+        }
+    }
+        fetchUsers();
 }
 
 async function deleteUser(userId: string) {

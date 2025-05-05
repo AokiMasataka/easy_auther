@@ -27,7 +27,7 @@ class EzAutherClient {
         const refresh_token = getRefreshToken();
 
         const params = {
-            method: "GET",
+            method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': refresh_token
@@ -55,7 +55,7 @@ class EzAutherClient {
                 'Authorization': token
             },
         };
-        
+
         const response = await fetch(url, params);
         
         if (!response.ok) {
@@ -120,6 +120,34 @@ class EzAutherClient {
                     throw new FetchError("UnAuth", 401)
                 }
                 return await this.delete(endpoint);
+            };
+            throw new FetchError("", response.status);
+        };
+
+        return response;
+    };
+
+    async put(endpoint: string, body?: any): Promise<Response> {
+        const url = this.prefix() + endpoint;
+        const token = getToken();
+        const params = {
+            method: "PUTT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            },
+            body: JSON.stringify(body)
+        };
+
+        const response = await fetch(url, params);
+        
+        if (!response.ok) {
+            if (response.status == 401){
+                const ref_response = await this.refresh_token();
+                if (!ref_response.ok) {
+                    throw new FetchError("UnAuth", 401)
+                }
+                return await this.put(endpoint, body);
             };
             throw new FetchError("", response.status);
         };
