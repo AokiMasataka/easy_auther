@@ -1,0 +1,24 @@
+[package]
+name = "ea_backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-cors = "0.7.1"
+actix-web = "4.11.0"
+jwt-simple = "0.12.12"
+serde = "1.0.216"
+uuid = { version = "1.17.0", features = ["v4", "serde"] }
+sqlx = { version = "0.8.6", features = [ "runtime-tokio", "postgres", "uuid", "chrono" ] }
+chrono = { version = "0.4.41", features = ["serde"] }
+dotenvy = "0.15.7"
+futures-util = "0.3.31"
+env_logger = "0.11.8"
+tracing-actix-web = "0.7.4"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.16", features = ["fmt", "json", "env-filter"] }
+base64 = "0.22.1"
+
+
+[profile.dev]
+opt-level = 1

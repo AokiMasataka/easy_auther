@@ -1,0 +1,2 @@
+tenant は作らないsingle tenant
+管理するのはadminだけ

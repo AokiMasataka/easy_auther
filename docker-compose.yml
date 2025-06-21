@@ -1,0 +1,36 @@
+services:
+  # frnotend:
+  #   build: ea_frontend
+  #   container_name: ea-app-front
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+
+  # ea-app-backend:
+  #   build: ea_backend
+  #   container_name: ea-app-back
+  #   depends_on:
+  #     - ea-postgres
+  #   ports:
+  #     - ${BACKEND_PORT}:${BACKEND_PORT}
+  #   environment:
+  #     BACKEND_PORT: ${BACKEND_PORT}
+  #     PGSQL_HOST: ea-postgres
+  #     PGSQL_PORT: ${PGSQL_PORT}
+  #     PGSQL_USER: ${PGSQL_USER}
+  #     PGSQL_PASS: ${PGSQL_PASS}
+  #     PGSQL_DB: ${PGSQL_DB}
+  #     CLIENT_ID: ${CLIENT_ID}
+  #     CLIENT_SECRET: ${CLIENT_SECRET}
+  
+  ea-postgres:
+    image: postgres:17.2-alpine3.21
+    container_name: ea-postgres
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ${PGSQL_USER}
+      POSTGRES_PASSWORD: ${PGSQL_PASS}
+      POSTGRES_DB: ${PGSQL_DB}
+
