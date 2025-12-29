@@ -15,7 +15,8 @@ use crate::api::middlewares::{access_log, validate_jwt, validate_secret};
 
 fn cors_config() -> Cors {
     Cors::default()
-        .allowed_origin("http://localhost:3000")
+        // .allowed_origin("http://localhost:3000")
+        .allow_any_origin()
         .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
         .allowed_headers(vec![
             http::header::AUTHORIZATION,

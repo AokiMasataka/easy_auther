@@ -190,5 +190,5 @@ class EzAuthClient {
     }
 }
 
-
-export const ezAuthClient = new EzAuthClient("http://localhost:8080");
+export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+export const ezAuthClient = new EzAuthClient(BACKEND_BASE_URL);
