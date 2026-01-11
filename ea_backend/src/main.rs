@@ -48,12 +48,12 @@ async fn init_manager(state: &state::AppState) {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().ok();
+
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::new("info"))
         .json()
         .init();
-
-    dotenv().ok();
 
     let state = match state::AppState::from_env().await {
         Ok(state) => state,
@@ -61,6 +61,7 @@ async fn main() -> std::io::Result<()> {
             panic!("AppState Error: {}", error);
         }
     };
+    
     let app_port = state.config.port;
     match sqlx::migrate!().run(&state.db_pool).await {
         Ok(_) => tracing::info!("DB migrated"),
@@ -101,6 +102,7 @@ async fn main() -> std::io::Result<()> {
                 )
             )
             .route("/login", web::post().to(api::user::login))
+            .route("/register", web::post().to(api::user::create))
             .service(
                 web::scope("/")
                 .wrap(actix_web::middleware::from_fn(validate_secret))
