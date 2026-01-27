@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import Sample from "./views/Sample.vue";
+import Sample from "./views/Login.vue";
 import Callback from "./views/Callback.vue";
 
 export const router = createRouter({

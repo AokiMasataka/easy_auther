@@ -4,11 +4,11 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { callback } from '../scripts/auth';
+import { callback } from '../scripts/ea_client/mod.ts';
 
 async function handleCallback() {
     try {
-        const token = await callback();
+        const token = await callback("http://localhost:8000");
         sessionStorage.setItem("access_token", token);
         window.location.href = "/";
     } catch (e) {

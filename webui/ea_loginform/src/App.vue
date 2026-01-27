@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import Login from './views/Login.vue';
 </script>
 
 <template>
-  <Login />
+    <h1>Home</h1>
 </template>
 
 <style scoped>

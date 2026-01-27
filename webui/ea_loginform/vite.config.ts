@@ -5,4 +5,9 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [deno(), vue()],
+  server: {
+    host: "localhost",
+    port: 3000,
+    open: true,
+  },
 })

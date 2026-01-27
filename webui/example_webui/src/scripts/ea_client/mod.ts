@@ -1,34 +1,24 @@
-import { BACKEND_BASE_URL } from "./const.ts";
-import {
-    setCodeVerifier,
-    getCodeVerifier,
-    clearCodeVerifier,
-    setOauthState,
-    getOauthState,
-    clearOauthState
-} from "./pkceStore.ts";
-
-
 export async function redirectLoginForm(
-    client_id: string,
+    eaLoginFormUrl: string,
+    client_id: string
 ): Promise<void> {
     const { codeVerifier, codeChallenge } = await generatePkce();
     const state = generateState();
 
-    const redirectUrl = new URL("http://localhost:5173/");
-    redirectUrl.searchParams.append("client_id", client_id);
-    redirectUrl.searchParams.append("redirect_uri", `http://${globalThis.window.location.host}/callback`);
-    redirectUrl.searchParams.append("code_challenge", codeChallenge);
-    redirectUrl.searchParams.append("state", state);
+    const _eaLoginFormUrl = new URL(eaLoginFormUrl);
+    _eaLoginFormUrl.searchParams.append("client_id", client_id);
+    _eaLoginFormUrl.searchParams.append("redirect_uri", `http://${globalThis.window.location.host}/callback`);
+    _eaLoginFormUrl.searchParams.append("code_challenge", codeChallenge);
+    _eaLoginFormUrl.searchParams.append("state", state);
 
     setCodeVerifier(codeVerifier);
     setOauthState(state);
 
-    globalThis.window.location.href = redirectUrl.toString();
+    globalThis.window.location.href = _eaLoginFormUrl.toString();
 }
 
 
-export async function callback(): Promise<string> {
+export async function callback(ea_api_base_url: string): Promise<string> {
     const params = new URLSearchParams(globalThis.window.location.search);
 
     const callbackCode = params.get("code");
@@ -45,7 +35,7 @@ export async function callback(): Promise<string> {
         throw new Error("Invalid state");
     }
 
-    const jwt = await tokenApi(callbackCode, codeVerifier);
+    const jwt = await tokenApi(callbackCode, codeVerifier, ea_api_base_url);
     
     clearCodeVerifier();
     clearOauthState();
@@ -55,9 +45,10 @@ export async function callback(): Promise<string> {
 
 async function tokenApi(
     authorization_code: string,
-    code_verifier: string
+    code_verifier: string,
+    ea_api_base_url: string
 ): Promise<string> {
-    const url = BACKEND_BASE_URL + "/token";
+    const url = new URL("/token", ea_api_base_url).toString();
     const headers = {
         "Content-Type": "application/json",
     };
@@ -86,8 +77,7 @@ function base64UrlEncode(buffer: Uint8Array): string {
     .replace(/=+$/, "");
 }
 
-
-export async function generatePkce(): Promise<{
+async function generatePkce(): Promise<{
   codeVerifier: string;
   codeChallenge: string;
 }> {
@@ -107,7 +97,41 @@ export async function generatePkce(): Promise<{
 }
 
 
-export function generateState(length = 32): string {
+function generateState(length = 32): string {
   const bytes = crypto.getRandomValues(new Uint8Array(length));
   return base64UrlEncode(bytes);
+}
+
+
+function setCodeVerifier(verifier: string) {
+    sessionStorage.setItem("pkce_verifier", verifier);
+}
+
+function getCodeVerifier(): string {
+    const codeVerifier = sessionStorage.getItem("pkce_verifier");
+    if (!codeVerifier) {
+        throw new Error("code_verifier is missing");
+    }
+    return codeVerifier;
+}
+
+function clearCodeVerifier() {
+    sessionStorage.removeItem("pkce_verifier");
+}
+
+
+function setOauthState(state: string) {
+    sessionStorage.setItem("oauth_state", state);
+}
+
+function getOauthState(): string {
+    const state = sessionStorage.getItem("oauth_state");
+    if (!state) {
+        throw new Error("oauth_state is missing");
+    }
+    return state;
+}
+
+function clearOauthState() {
+    sessionStorage.removeItem("oauth_state");
 }
