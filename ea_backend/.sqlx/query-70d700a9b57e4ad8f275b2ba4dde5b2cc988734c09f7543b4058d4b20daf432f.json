@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO authorize_codes\n            (authorize_code, code_challenge, user_id)\n        VALUES\n            ($1, $2, $3)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "70d700a9b57e4ad8f275b2ba4dde5b2cc988734c09f7543b4058d4b20daf432f"
+}

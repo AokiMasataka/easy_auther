@@ -1,3 +1,4 @@
+pub mod auth;
 pub mod jwk;
 pub mod manager;
 pub mod middlewares;

@@ -51,10 +51,9 @@ pub async fn login(
     app_state: web::Data<AppState>,
     payload: web::Json<LoginRequest>
 ) -> HttpResponse {
-    let body = payload.into_inner();
-    tracing::info!(emial=body.email, "login manager");
+    tracing::info!(email=&payload.email, "login manager");
     let user = match service::manager::login(
-        &app_state.db_pool, &body.email, &body.pass
+        &app_state.db_pool, &payload.email, &payload.pass
     ).await {
         Ok(user) => user,
         Err(_) => return HttpResponse::Unauthorized().body("")

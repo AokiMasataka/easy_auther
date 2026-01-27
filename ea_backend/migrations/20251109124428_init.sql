@@ -18,6 +18,14 @@ CREATE TABLE users (
     updated_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP
 );
 
+
+CREATE TABLE authorize_codes (
+    authorize_code VARCHAR(256) NOT NULL PRIMARY KEY,
+    code_challenge VARCHAR(256) NOT NULL,
+    user_id UUID NOT NULL,
+    created_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP
+);
+
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN

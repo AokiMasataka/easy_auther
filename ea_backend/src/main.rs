@@ -101,6 +101,8 @@ async fn main() -> std::io::Result<()> {
                     .route("/{user_id}", web::delete().to(api::user::delete))
                 )
             )
+            .route("/authorize", web::post().to(api::auth::auth))
+            .route("/token", web::post().to(api::auth::token))
             .route("/login", web::post().to(api::user::login))
             .route("/register", web::post().to(api::user::create))
             .service(
