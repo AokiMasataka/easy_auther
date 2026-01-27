@@ -1,12 +1,41 @@
-import { BACKEND_BASE_URL } from "./const.ts";
-import {
-    setCodeVerifier,
-    getCodeVerifier,
-    clearCodeVerifier,
-    setOauthState,
-    getOauthState,
-    clearOauthState
-} from "./pkceStore.ts";
+export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+
+if (!BACKEND_BASE_URL) {
+    throw new Error("VITE_BACKEND_API_BASE_URL is not defined");
+}
+
+function setCodeVerifier(verifier: string) {
+    sessionStorage.setItem("pkce_verifier", verifier);
+}
+
+function getCodeVerifier(): string {
+    const codeVerifier = sessionStorage.getItem("pkce_verifier");
+    if (!codeVerifier) {
+        throw new Error("code_verifier is missing");
+    }
+    return codeVerifier;
+}
+
+function clearCodeVerifier() {
+    sessionStorage.removeItem("pkce_verifier");
+}
+
+
+function setOauthState(state: string) {
+    sessionStorage.setItem("oauth_state", state);
+}
+
+function getOauthState(): string {
+    const state = sessionStorage.getItem("oauth_state");
+    if (!state) {
+        throw new Error("oauth_state is missing");
+    }
+    return state;
+}
+
+function clearOauthState() {
+    sessionStorage.removeItem("oauth_state");
+}
 
 
 export async function redirectLoginForm(
