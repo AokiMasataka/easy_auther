@@ -1,15 +1,26 @@
 services:
-  ea-app-webui:
+  ea-app-webui-management:
     build:
       context: ea_frontend
       dockerfile: Dockerfile
       args:
         VITE_BACKEND_API_BASE_URL: ${BACKEND_API_BASE_URL}
-    image: ea-app-webui
-    container_name: ea-app-webui
+    image: ea-app-webui-management
+    container_name: ea-app-webui-management
+    ports:
+      - 8080:80
+      - 443:443
+  
+  ea-app-webui-login:
+    build:
+      context: webui/ea_loginform
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_API_BASE_URL: ${BACKEND_API_BASE_URL}
+    image: ea-app-webui-login
+    container_name: ea-app-webui-login
     ports:
       - 80:80
-      - 443:443
 
   ea-app-backend:
     build:
@@ -41,4 +52,3 @@ services:
       POSTGRES_USER: ${PGSQL_USER}
       POSTGRES_PASSWORD: ${PGSQL_PASS}
       POSTGRES_DB: ${PGSQL_DB}
-
