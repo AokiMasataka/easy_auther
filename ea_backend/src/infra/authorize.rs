@@ -63,13 +63,6 @@ pub async fn delete_by_code(
 }
 
 
-pub struct RefreshToken {
-    pub token_hash: String,
-    pub user_id: Uuid,
-    pub expires_at: NaiveDateTime
-}
-
-
 pub async fn register_refresh_token(
     pool: &Pool<Postgres>,
     token_hash: &str,
@@ -91,29 +84,6 @@ pub async fn register_refresh_token(
         .await?;
 
     Ok(())
-}
-
-
-pub async fn get_refresh_token(
-    pool: &Pool<Postgres>,
-    token_hash: &str
-) -> Result<RefreshToken, sqlx::Error> {
-    let recode = sqlx::query_as!(
-        RefreshToken,
-        r#"
-        SELECT
-            token_hash, user_id, expires_at
-        FROM
-            refresh_tokens
-        WHERE
-            token_hash = $1
-        "#,
-        token_hash
-    )
-        .fetch_one(pool)
-        .await?;
-
-    Ok(recode)
 }
 
 

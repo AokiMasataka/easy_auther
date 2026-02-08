@@ -19,7 +19,6 @@ struct UnAuthError {
 }
 
 
-
 pub async fn access_log(
     req: ServiceRequest,
     next: Next<impl MessageBody>,

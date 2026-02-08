@@ -117,3 +117,31 @@ pub async fn refresh_token(
         .cookie(cookie)
         .json(response)
 }
+
+
+pub async fn logout(
+    app_state: web::Data<AppState>,
+    req: HttpRequest
+) -> HttpResponse {
+    let refresh_token = match req.cookie("refresh_token") {
+        Some(refresh_token) => refresh_token.value().to_string(),
+        None => return HttpResponse::Unauthorized().finish()
+    };
+
+    authorize::logout(
+        &app_state.db_pool,
+        &refresh_token
+    ).await;
+
+    let cookie = Cookie::build("refresh_token", "")
+        .path("/")
+        .http_only(true)
+        //.secure(true)
+        .same_site(SameSite::Lax)
+        .secure(false)
+        .finish();
+
+    HttpResponse::Ok()
+        .cookie(cookie)
+        .finish()
+}

@@ -9,8 +9,6 @@ pub struct User {
 
 pub struct UserWithPass {
     pub id: uuid::Uuid,
-    pub name: String,
-    pub email: String,
     pub pass: String,
 }
 
@@ -22,7 +20,7 @@ pub async fn create(
     pass: &str
 ) -> Result<uuid::Uuid, sqlx::Error> {
     let user_id = uuid::Uuid::new_v4();
-    sqlx::query!(
+    match sqlx::query!(
         r#"
         INSERT INTO users
             (id, name, email, pass)
@@ -33,11 +31,13 @@ pub async fn create(
         name,
         email,
         pass
-    )
-        .execute(pool)
-        .await?;
-
-    Ok(user_id)
+    ).execute(pool).await {
+        Ok(_) => Ok(user_id),
+        Err(e) => {
+            tracing::error!(error = %e, "failed to insert user");
+            Err(e)
+        }
+    }
 }
 
 pub async fn get_users(pool: &Pool<Postgres>) -> Result<Vec<User>, sqlx::Error> {
@@ -61,7 +61,7 @@ pub async fn find_by_email(pool: &Pool<Postgres>, email: &str) -> Result<UserWit
         UserWithPass,
         r#"
         SELECT
-            id, name, email, pass
+            id, pass
         FROM
             users
         WHERE

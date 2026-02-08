@@ -83,10 +83,10 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/manage")
                 .route("/login", web::post().to(api::manager::login))
-                .route("/register", web::post().to(api::manager::create))
                 .service(
                     web::scope("/managers")
                     .wrap(actix_web::middleware::from_fn(validate_jwt))
+                    .route("", web::post().to(api::manager::create))
                     .route("", web::get().to(api::manager::list))
                     .route("/{user_id}", web::get().to(api::manager::get))
                     .route("/{user_id}", web::put().to(api::manager::update))
@@ -105,7 +105,7 @@ async fn main() -> std::io::Result<()> {
             .route("/authorize", web::post().to(api::auth::auth))
             .route("/token", web::post().to(api::auth::token))
             .route("/refresh", web::post().to(api::auth::refresh_token))
-            .route("/register", web::post().to(api::user::create))
+            .route("/logout", web::post().to(api::auth::logout))
             .service(
                 web::scope("/")
                 .wrap(actix_web::middleware::from_fn(validate_secret))
