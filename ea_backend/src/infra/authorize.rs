@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use sqlx::{Pool, Postgres, types::Uuid};
 
 
@@ -20,6 +21,7 @@ pub async fn register_codes(
     )
         .execute(pool)
         .await?;
+
     Ok(())
 }
 
@@ -36,8 +38,8 @@ pub async fn find_by_code(
         "#,
         authorization_code
     )
-    .fetch_one(pool)
-    .await?;
+        .fetch_one(pool)
+        .await?;
 
     Ok((record.user_id, record.code_challenge))
 }
@@ -54,7 +56,83 @@ pub async fn delete_by_code(
         "#,
         authorization_code
     )
-    .execute(pool)
-    .await?;
+        .execute(pool)
+        .await?;
+
     Ok(())
+}
+
+
+pub struct RefreshToken {
+    pub token_hash: String,
+    pub user_id: Uuid,
+    pub expires_at: NaiveDateTime
+}
+
+
+pub async fn register_refresh_token(
+    pool: &Pool<Postgres>,
+    token_hash: &str,
+    user_id: &Uuid,
+    expiers_at: &NaiveDateTime
+) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+        INSERT INTO refresh_tokens
+            (token_hash, user_id, expires_at)
+        VALUES
+            ($1, $2, $3)
+        "#,
+        token_hash,
+        user_id,
+        expiers_at
+    )
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}
+
+
+pub async fn get_refresh_token(
+    pool: &Pool<Postgres>,
+    token_hash: &str
+) -> Result<RefreshToken, sqlx::Error> {
+    let recode = sqlx::query_as!(
+        RefreshToken,
+        r#"
+        SELECT
+            token_hash, user_id, expires_at
+        FROM
+            refresh_tokens
+        WHERE
+            token_hash = $1
+        "#,
+        token_hash
+    )
+        .fetch_one(pool)
+        .await?;
+
+    Ok(recode)
+}
+
+
+pub async fn delete_refresh_token(
+    pool: &Pool<Postgres>,
+    token_hash: &str
+) -> Result<(Uuid, NaiveDateTime), sqlx::Error> {
+    let deleted = sqlx::query!(
+        r#"
+        DELETE FROM
+            refresh_tokens
+        WHERE
+            token_hash = $1
+        RETURNING
+            user_id, expires_at
+        "#,
+        token_hash,
+    )
+        .fetch_one(pool)
+        .await?;
+    Ok((deleted.user_id, deleted.expires_at))
 }

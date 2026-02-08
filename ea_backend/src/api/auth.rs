@@ -1,6 +1,6 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{cookie::{Cookie, SameSite}, web, HttpRequest, HttpResponse};
 use serde::{Deserialize, Serialize};
-use crate::{service::authorize, state::AppState};
+use crate::{core::AppState, service::authorize};
 
 
 #[derive(Deserialize)]
@@ -59,15 +59,61 @@ pub async fn token(
     app_state: web::Data<AppState>,
     payload: web::Json<TokenRequest>
 ) -> HttpResponse {
-    
-    let t = authorize::token(
+    let (token, refresh_token) = authorize::issue_tokens(
         &app_state.db_pool,
         &app_state.key_pair,
         &payload.authorization_code,
         &payload.code_verifier
     ).await.unwrap();
 
-    let response = TokenResponse{ jwt: t };
-    HttpResponse::Ok().json(response)
+    
+    let cookie = Cookie::build("refresh_token", refresh_token)
+        .path("/")
+        .http_only(true)
+        //.secure(true)
+        .same_site(SameSite::Lax)
+        .secure(false)
+        .finish();
+
+    let response = TokenResponse{ jwt: token };
+    HttpResponse::Ok()
+        .cookie(cookie)
+        .json(response)
 }
 
+
+pub async fn refresh_token(
+    app_state: web::Data<AppState>,
+    req: HttpRequest
+) -> HttpResponse {
+    let refresh_token = match req.cookie("refresh_token") {
+        Some(refresh_token) => refresh_token.value().to_string(),
+        None => {
+            tracing::info!("refresh token is not set");
+            return HttpResponse::Unauthorized().finish();
+        }
+    };
+
+
+    let (new_token, new_refresh_token) = authorize::refresh(
+        &app_state.db_pool,
+        &app_state.key_pair,
+        &refresh_token
+    )
+        .await
+        .unwrap();
+    
+
+    let cookie = Cookie::build("refresh_token", new_refresh_token)
+        .path("/")
+        .http_only(true)
+        //.secure(true)
+        .same_site(SameSite::Lax)
+        .secure(false)
+        .finish();
+
+    let response = TokenResponse{ jwt: new_token };
+    HttpResponse::Ok()
+        .cookie(cookie)
+        .json(response)
+}

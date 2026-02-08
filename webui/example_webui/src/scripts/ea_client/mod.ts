@@ -60,8 +60,27 @@ async function tokenApi(
         url,
         {
             method: "POST",
+            credentials: "include",
             headers: headers,
             body: JSON.stringify(body),
+        }
+    );
+    
+    const json = await response.json();
+    return json["jwt"];  
+}
+
+
+export async function refreshApi(
+    ea_api_base_url: string
+): Promise<string> {
+    const url = new URL("/refresh", ea_api_base_url).toString();
+
+    const response = await fetch(
+        url,
+        {
+            method: "POST",
+            credentials: "include",
         }
     );
     

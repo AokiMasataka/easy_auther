@@ -3,6 +3,7 @@ use jwt_simple::prelude::RS256KeyPair;
 
 pub mod config;
 pub mod database;
+pub mod exceptions;
 
 
 #[derive(Clone)]

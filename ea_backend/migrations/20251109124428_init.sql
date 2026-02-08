@@ -26,6 +26,15 @@ CREATE TABLE authorize_codes (
     created_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP
 );
 
+
+CREATE TABLE refresh_tokens (
+    token_hash VARCHAR(256) NOT NULL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL default CURRENT_TIMESTAMP
+);
+
+
 CREATE OR REPLACE FUNCTION update_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN

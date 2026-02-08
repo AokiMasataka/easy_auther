@@ -8,15 +8,16 @@ use tracing_subscriber::EnvFilter;
 mod api;
 mod service;
 mod infra;
-mod state;
+mod core;
 
 use crate::api::middlewares::{access_log, validate_jwt, validate_secret};
 
 
 fn cors_config() -> Cors {
     Cors::default()
-        // .allowed_origin("http://localhost:3000")
-        .allow_any_origin()
+        .allowed_origin("http://localhost:3001")
+        .allowed_origin("http://localhost:3000")
+        //.allow_any_origin()
         .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
         .allowed_headers(vec![
             http::header::AUTHORIZATION,
@@ -28,7 +29,7 @@ fn cors_config() -> Cors {
 }
 
 
-async fn init_manager(state: &state::AppState) {
+async fn init_manager(state: &core::AppState) {
     match infra::manager::find_by_name(&state.db_pool, "root").await{
         Ok(_) => tracing::info!("exist root user"),
         Err(_) => {
@@ -55,7 +56,7 @@ async fn main() -> std::io::Result<()> {
         .json()
         .init();
 
-    let state = match state::AppState::from_env().await {
+    let state = match core::AppState::from_env().await {
         Ok(state) => state,
         Err(error) => {
             panic!("AppState Error: {}", error);
@@ -103,7 +104,7 @@ async fn main() -> std::io::Result<()> {
             )
             .route("/authorize", web::post().to(api::auth::auth))
             .route("/token", web::post().to(api::auth::token))
-            .route("/login", web::post().to(api::user::login))
+            .route("/refresh", web::post().to(api::auth::refresh_token))
             .route("/register", web::post().to(api::user::create))
             .service(
                 web::scope("/")

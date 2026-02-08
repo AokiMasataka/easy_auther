@@ -9,7 +9,7 @@ use actix_web::{
 use base64::{engine::general_purpose, Engine as _};
 use std::time::Instant;
 
-use crate::{state::AppState, service::signature::EaClaims};
+use crate::{core::AppState, service::signature::EaClaims};
 use serde::Serialize;
 
 

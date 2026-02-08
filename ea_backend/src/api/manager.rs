@@ -1,7 +1,7 @@
 use actix_web::{HttpResponse, web};
 use serde::{Serialize, Deserialize};
 use sqlx::types::uuid;
-use crate::{service, state::AppState};
+use crate::{service, core::AppState};
 
 
 #[derive(Deserialize)]
@@ -65,8 +65,8 @@ pub async fn login(
     };
 
     let response = LoginResponse{
-        jwt: service::signature::sign(&app_state.key_pair, user.id, &user.name, false),
-        refresh: service::signature::sign(&app_state.key_pair, user.id, &user.name, true)
+        jwt: service::signature::sign(&app_state.key_pair, user.id).unwrap(),
+        refresh: service::signature::sign(&app_state.key_pair, user.id).unwrap()
     };
 
     HttpResponse::Ok().json(response)

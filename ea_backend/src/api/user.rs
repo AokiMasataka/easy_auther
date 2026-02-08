@@ -1,7 +1,7 @@
 use actix_web::{web, HttpResponse};
 use serde::{Serialize, Deserialize};
 use sqlx::types::uuid;
-use crate::{service, state::AppState};
+use crate::{service, core::AppState};
 
 
 #[derive(Deserialize)]
@@ -43,32 +43,6 @@ pub struct GetUserResponse {
 pub struct ListUserResponse {
     users: Vec<GetUserResponse>,
     total: usize
-}
-
-
-pub async fn login(
-    app_state: web::Data<AppState>,
-    payload: web::Json<LoginRequest>
-) -> HttpResponse {
-    let body = payload.into_inner();
-    let user = match service::user::login(
-        &app_state.db_pool, &body.email, &body.pass
-    ).await {
-        Ok(user) => user,
-        Err(_) => return HttpResponse::Unauthorized().body("")
-    };
-
-    let user = match user {
-        Some(user) => user,
-        None => return HttpResponse::Unauthorized().body("")
-    };
-
-    let response = LoginResponse{
-        jwt: service::signature::sign(&app_state.key_pair, user.id, &user.name, false),
-        refresh: service::signature::sign(&app_state.key_pair, user.id, &user.name, true)
-    };
-
-    HttpResponse::Ok().json(response)
 }
 
 

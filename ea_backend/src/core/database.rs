@@ -1,5 +1,5 @@
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
-use crate::state::config::BaseConfig;
+use crate::core::config::BaseConfig;
 
 pub struct DataBaseConfig {
     host: String,

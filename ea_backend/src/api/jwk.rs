@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse};
 use serde::Serialize;
-use crate::state::AppState;
+use crate::core::AppState;
 
 
 #[derive(Serialize)]

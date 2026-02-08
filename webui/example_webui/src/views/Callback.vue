@@ -9,8 +9,7 @@ import { callback } from '../scripts/ea_client/mod.ts';
 async function handleCallback() {
     try {
         const token = await callback("http://localhost:8000");
-        sessionStorage.setItem("access_token", token);
-        window.location.href = "/";
+        window.location.href = "/home";
     } catch (e) {
         alert("code verifier not found");
         return;
