@@ -6,6 +6,7 @@ pub struct BaseConfig {
     pub pgsql_user: String,
     pub pgsql_pass: String,
     pub pgsql_db: String,
+    pub allowed_origins: Vec<String>,
     pub client_id: String,
     pub client_secret: String,
     pub root_email: String,
@@ -29,6 +30,11 @@ fn get_env_with_defualt(var: &str, value: &str) -> String {
 
 impl BaseConfig {
     pub fn from_env() -> BaseConfig {
+        let allowed_origins= get_env("ALLOWED_ORIGINS")
+            .split(',')
+            .map(|x| x.to_string())
+            .collect();
+    
         BaseConfig {
             port: get_env("APP_PORT").parse::<u16>().expect("APP_PORT must be a valid u16"),
             pgsql_host: get_env("PGSQL_HOST"),
@@ -36,6 +42,7 @@ impl BaseConfig {
             pgsql_user: get_env("PGSQL_USER"),
             pgsql_pass: get_env("PGSQL_PASS"),
             pgsql_db: get_env("PGSQL_DB"),
+            allowed_origins: allowed_origins,
             client_id: get_env("CLIENT_ID"),
             client_secret: get_env("CLIENT_SECRET"),
             root_email: get_env_with_defualt("ROOT_EMAIL", "root"),

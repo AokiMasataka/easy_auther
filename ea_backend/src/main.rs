@@ -2,7 +2,7 @@ use std::process::exit;
 
 use dotenvy::dotenv;
 use actix_cors::Cors;
-use actix_web::{web, http, App, HttpServer};
+use actix_web::{App, HttpServer, http, web};
 use tracing_subscriber::EnvFilter;
 
 mod api;
@@ -13,19 +13,21 @@ mod core;
 use crate::api::middlewares::{access_log, validate_jwt, validate_secret};
 
 
-fn cors_config() -> Cors {
-    Cors::default()
-        .allowed_origin("http://localhost:3001")
-        .allowed_origin("http://localhost:3000")
-        //.allow_any_origin()
-        .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
-        .allowed_headers(vec![
-            http::header::AUTHORIZATION,
-            http::header::ACCEPT,
-            http::header::CONTENT_TYPE,
-        ])
-        .supports_credentials()
-        .max_age(3600)
+fn cors_config(allowed_origins: &Vec<String>) -> Cors {
+    allowed_origins
+        .iter()
+        .fold(
+            Cors::default()
+                .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
+                .allowed_headers(vec![
+                    http::header::AUTHORIZATION,
+                    http::header::ACCEPT,
+                    http::header::CONTENT_TYPE,
+                ])
+                .supports_credentials()
+                .max_age(3600),
+            |cors, origin| cors.allowed_origin(origin),
+        )
 }
 
 
@@ -63,7 +65,6 @@ async fn main() -> std::io::Result<()> {
         }
     };
     
-    let app_port = state.config.port;
     match sqlx::migrate!().run(&state.db_pool).await {
         Ok(_) => tracing::info!("DB migrated"),
         Err(e) => {
@@ -73,11 +74,12 @@ async fn main() -> std::io::Result<()> {
     };
 
     init_manager(&state).await;
+    let app_port = state.config.port;
 
     HttpServer::new( move || {
         App::new()
             .wrap(actix_web::middleware::from_fn(access_log))
-            .wrap(cors_config())
+            .wrap(cors_config(&state.config.allowed_origins))
             .app_data(web::Data::new(state.clone()))
             .route("/jwk", web::get().to(api::jwk::jwk))
             .service(

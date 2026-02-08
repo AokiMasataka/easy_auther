@@ -37,32 +37,6 @@ pub async fn authorize(
 }
 
 
-async fn verify_code(
-    pool: &Pool<Postgres>,
-    authorization_code: &str,
-    code_verifier: &str
-) -> Result<Uuid, ()> {
-    let (user_id, code_challenge) = infra::authorize::find_by_code(pool, authorization_code)
-        .await
-        .map_err(|_| ())?;
-
-    let mut hasher = Sha256::new();
-    hasher.update(code_verifier.as_bytes());
-    let hashed = hasher.finalize();
-    let generated_challenge = URL_SAFE_NO_PAD.encode(hashed);
-
-    if generated_challenge != code_challenge {
-        return Err(());
-    }
-
-    infra::authorize::delete_by_code(pool, authorization_code)
-        .await
-        .map_err(|_| ())?;
-
-    Ok(user_id)
-}
-
-
 pub async fn issue_tokens(
     pool: &Pool<Postgres>,
     key_pair: &RS256KeyPair,
@@ -125,6 +99,31 @@ fn generate_authorization_code() -> String {
     URL_SAFE_NO_PAD.encode(bytes)
 }
 
+
+async fn verify_code(
+    pool: &Pool<Postgres>,
+    authorization_code: &str,
+    code_verifier: &str
+) -> Result<Uuid, ()> {
+    let (user_id, code_challenge) = infra::authorize::find_by_code(pool, authorization_code)
+        .await
+        .map_err(|_| ())?;
+
+    let mut hasher = Sha256::new();
+    hasher.update(code_verifier.as_bytes());
+    let hashed = hasher.finalize();
+    let generated_challenge = URL_SAFE_NO_PAD.encode(hashed);
+
+    if generated_challenge != code_challenge {
+        return Err(());
+    }
+
+    infra::authorize::delete_by_code(pool, authorization_code)
+        .await
+        .map_err(|_| ())?;
+
+    Ok(user_id)
+}
 
 async fn issue_refresh_token(
     pool: &Pool<Postgres>,
