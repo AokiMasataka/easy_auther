@@ -160,10 +160,10 @@ pub async fn delete(
     let user_id = path.into_inner();
     tracing::info!(user_id = user_id.to_string(), "delete manager");
     let response = match service::manager::delete_user(&app_state.db_pool, user_id).await {
-        Ok(_) => HttpResponse::NoContent().body(""),
+        Ok(_) => HttpResponse::NoContent().finish(),
         Err(e) => {
             tracing::error!(error = e.to_string(), "Faild to delete manager");
-            HttpResponse::InternalServerError().body("")
+            HttpResponse::InternalServerError().finish()
         }
     };
     response
