@@ -1,7 +1,7 @@
 services:
   ea-app-webui-management:
     build:
-      context: ea_frontend
+      context: webui/ea_webui_manage
       dockerfile: Dockerfile
       args:
         VITE_BACKEND_API_BASE_URL: ${BACKEND_API_BASE_URL}
@@ -13,7 +13,7 @@ services:
   
   ea-app-webui-login:
     build:
-      context: webui/ea_loginform
+      context: webui/ea_webui_login
       dockerfile: Dockerfile
       args:
         VITE_BACKEND_API_BASE_URL: ${BACKEND_API_BASE_URL}
@@ -39,6 +39,7 @@ services:
       PGSQL_USER: ${PGSQL_USER}
       PGSQL_PASS: ${PGSQL_PASS}
       PGSQL_DB: ${PGSQL_DB}
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3030
       CLIENT_ID: ${CLIENT_ID}
       CLIENT_SECRET: ${CLIENT_SECRET}
   
