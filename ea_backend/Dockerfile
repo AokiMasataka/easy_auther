@@ -9,19 +9,19 @@ RUN apt update && \
       libclang-dev \
       musl-tools
 
-RUN rustup target add x86_64-unknown-linux-musl
+# RUN rustup target add x86_64-unknown-linux-musl
 
-COPY ./src /workspace/src
-COPY ./migrations /workspace/migrations
-COPY ./.sqlx /workspace/.sqlx
-COPY ./Cargo.toml /workspace/Cargo.toml
-COPY ./Cargo.lock /workspace/Cargo.lock
+COPY src src
+COPY migrations migrations
+COPY .sqlx .sqlx
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 
-RUN SQLX_OFFLINE=true cargo build --release
+ENV DATABASE_URL=postgres://pgsql:pgsql@localhost/pgsql
+ENV SQLX_OFFLINE=true
 
-# FROM debian:bullseye-slim
-# COPY --from=build /workspace/target/release/ea_backend /usr/local/bin/ea_backend
-# CMD ["ea_backend"]
+RUN cargo build --release
+
 
 FROM gcr.io/distroless/cc:nonroot
 WORKDIR /app
