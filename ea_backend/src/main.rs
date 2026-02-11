@@ -111,6 +111,7 @@ async fn main() -> std::io::Result<()> {
                 .route("/refresh", web::post().to(api::auth::refresh_token))
                 .route("/logout", web::post().to(api::auth::logout))
                 .service(
+                    web::scope("")
                     .wrap(actix_web::middleware::from_fn(validate_secret))
                     .route("/users", web::post().to(api::user::create))
                     .route("/users", web::get().to(api::user::list))
